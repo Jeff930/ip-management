@@ -1,0 +1,103 @@
+version: "3.8"
+
+services:
+  auth-service:
+    build: ./auth-service
+    container_name: ip-auth-service
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      - APP_ENV=local
+      - DB_CONNECTION=mysql
+      - DB_HOST=ip-mysql
+      - DB_PORT=3306
+      - DB_DATABASE=ip_auth
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+    volumes:
+      - ./auth-service:/var/www/html
+    networks:
+      - app-network
+
+  ip-service:
+    build: ./ip-service
+    container_name: ip-management-service
+    restart: always
+    depends_on:
+      - mongo
+    environment:
+      - APP_ENV=local
+      - DB_CONNECTION=mongodb
+      - DB_HOST=mongo
+      - DB_PORT=27017
+      - DB_DATABASE=ip_management
+    volumes:
+      - ./ip-service:/app
+      - /node_modules
+    networks:
+      - app-network
+
+  mysql:
+    image: mysql:8
+    container_name: ip-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ip_auth
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:6
+    container_name: ip-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:latest
+    container_name: ip-nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - auth-service
+      - ip-service
+      - frontend
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    container_name: ip-frontend
+    restart: always
+    working_dir: /app
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend:/app:cached
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: ["npm", "run", "start"]
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:
+  mongo_data:
+
+networks:
+  app-network:
+    driver: bridge

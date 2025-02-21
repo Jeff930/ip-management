@@ -1,0 +1,30 @@
+<div class="d-flex justify-content-center align-items-center min-vh-100 login-page">
+  <mat-card class="max-w-md p-5 shadow-lg login-card">
+    <div class="text-center">
+      <mat-icon class="fs-1 w-25 h-25 text-white">security</mat-icon>
+      <h2 class="fs-3 fw-semibold text-light">IP MANAGEMENT</h2>
+    </div>
+
+    <form class="mt-4">
+      <div class="mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Email</mat-label>
+          <input matInput placeholder="Enter your email" type="email" required [(ngModel)]="email" name="email" class="form-control">
+        </mat-form-field>
+      </div>
+
+      <div class="mb-3">
+        <mat-form-field class="w-100">
+          <mat-label>Password</mat-label>
+          <input matInput placeholder="Enter your password" type="password" required [(ngModel)]="password"
+            name="password" class="form-control">
+        </mat-form-field>
+      </div>
+
+      <div>
+        <button mat-flat-button color="primary" class="btn btn-primary w-100 py-2 fs-6 fw-semibold"
+          (click)="onSubmit()">LOGIN</button>
+      </div>
+    </form>
+  </mat-card>
+</div>

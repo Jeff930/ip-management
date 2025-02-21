@@ -1,1 +1,43 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+@use 'theme' as *;
+@import "bootstrap/scss/bootstrap";
+
+:root {
+  @include mat.theme((
+      typography: Inter));
+  @include mat.expansion-overrides((container-background-color: $primary, header-expanded-state-height:48px,header-text-color:$white, header-indicator-color:$white,header-hover-state-layer-color: $dark
+      ));
+  @include mat.table-overrides((row-item-outline-color:$light-gray));
+  @include mat.form-field-density(-5);
+}
+
+.fs-7{
+  font-size:0.875rem;
+}
+
+.form-control:focus{
+  background-color: transparent;
+  box-shadow:none;
+}
+
+a{
+  text-decoration: none;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.heading {
+  font-family: 'Manrope', sans-serif;
+}
+
+
+
+  

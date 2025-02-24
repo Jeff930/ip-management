@@ -15,6 +15,7 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        $this->authorize('view', $user);
         return response()->json($user);
     }
 
@@ -37,22 +38,25 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $this->authorize('update', $user);
+        if (auth()->user()->cannot('update', $user)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
-        $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:users,email,' . $user->id,
-            'password' => 'sometimes|required|min:6'
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
         ]);
 
-        $user->update($request->only(['name', 'email', 'password']));
+        $user->update($validated);
 
-        return response()->json(['message' => 'User updated successfully']);
+        return response()->json(['message' => 'User updated successfully', 'user' => $user]);
     }
 
     public function destroy(User $user)
     {
-        $this->authorize('delete', $user);
+        if (auth()->user()->cannot('delete', $user)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
         $user->delete();
         return response()->json(['message' => 'User deleted successfully']);

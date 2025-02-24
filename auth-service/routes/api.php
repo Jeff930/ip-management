@@ -12,7 +12,18 @@ Route::get('/check', function () {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('users', UserController::class)->except(['create', 'edit']);
-    Route::apiResource('ip-addresses', IpAddressController::class)->except(['create', 'edit']);
+    Route::get('/ip-addresses', [IpAddressController::class, 'index']);
+    Route::post('/ip-addresses', [IpAddressController::class, 'store']);
+    Route::middleware('role:admin')->group(function () {
+        Route::delete('/ip-addresses/{ipAddress}', [IpAddressController::class, 'destroy']);
+        Route::get('/users', [UserController::class, 'index']);
+        Route::post('/users', [UserController::class, 'store']);
+        Route::delete('/users/{user}', [UserController::class, 'destroy']);
+        Route::put('/users/{user}', [UserController::class, 'update']);
+    });
+    Route::put('/users/{user}/profile', [UserController::class, 'update'])
+        ->middleware('can:update,user');
+    Route::put('/ip-addresses/{ipAddress}', [IpAddressController::class, 'update']); 
     Route::post('/logout', [AuthController::class, 'logout']);
 });
+

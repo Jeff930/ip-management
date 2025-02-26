@@ -5,10 +5,26 @@
 :root {
   @include mat.theme((
       typography: Inter));
-  @include mat.expansion-overrides((container-background-color: $primary, header-expanded-state-height:48px,header-text-color:$white, header-indicator-color:$white,header-hover-state-layer-color: $dark
-      ));
-  @include mat.table-overrides((row-item-outline-color:$light-gray));
+  @include mat.expansion-overrides((
+    container-background-color: $primary, 
+    header-expanded-state-height:48px,
+    header-text-color:$white, 
+    header-indicator-color:$white,
+    header-hover-state-layer-color: $dark));
+  @include mat.table-overrides((
+    row-item-outline-color:$gray, 
+    background-color: $white, 
+    header-headline-color: $primary, 
+    header-headline-weight:700));
+  @include mat.paginator-overrides((
+    container-background-color: $white));
+  @include mat.card-overrides((
+    elevated-container-color: $white));
   @include mat.form-field-density(-5);
+  @include mat.sidenav-overrides((
+    content-background-color: $light-gray));
+  @include mat.form-field-overrides((
+    outlined-outline-color: $gray));
 }
 
 .fs-7{

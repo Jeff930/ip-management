@@ -13,6 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 export interface IpDialogData {
   mode: 'add' | 'edit' | 'view';
@@ -23,7 +24,7 @@ export interface IpDialogData {
   selector: 'app-ip-dialog',
   templateUrl: './ip-dialog.component.html',
   imports: [MatButtonModule, MatDialogActions, MatDialogClose, MatDialogTitle, MatDialogContent, MatFormFieldModule, FormsModule, MatInputModule,
-    ReactiveFormsModule],
+    ReactiveFormsModule, CommonModule],
   styleUrls: ['./ip-dialog.component.scss']
 })
 export class IpDialogComponent {
@@ -42,7 +43,7 @@ export class IpDialogComponent {
     this.dialogTitle = data.mode === 'add' ? 'Add IP Address' : data.mode === 'edit' ? 'Edit IP Address' : 'View IP Address';
 
     this.ipForm = this.fb.group({
-      ip: [data.ipData?.ip || '', [Validators.required]],
+      ip_address: [data.ipData?.ip_address || '', [Validators.required]],
       label: [data.ipData?.label || ''],
       comment: [data.ipData?.comment || '']
     });

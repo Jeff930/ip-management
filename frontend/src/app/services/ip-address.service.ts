@@ -15,7 +15,7 @@ export interface IpData {
   providedIn: 'root'
 })
 export class IpAddressService {
-  private apiUrl = 'http://localhost/auth-api/ip-addresses';
+  private apiUrl = 'https://localhost/auth-api/ip-addresses';
 
   constructor(private http: HttpClient) { }
 

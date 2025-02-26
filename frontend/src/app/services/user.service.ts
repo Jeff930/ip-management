@@ -14,7 +14,7 @@ export interface UserData {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost/auth-api/users';
+  private apiUrl = 'https://localhost/auth-api/users';
 
   constructor(private http: HttpClient) { }
 

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -9,59 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { UserDialogComponent } from '../../components/user-dialog/user-dialog.component';
-
-export interface UserData {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  createdAt: string;
-}
-
-const NAMES: string[] = [
-  'Jefferson de Guzman',
-  'Sophia Williams',
-  'Daniel Martinez',
-  'Emily Johnson',
-  'Michael Brown',
-  'Olivia Davis',
-  'Ethan Garcia',
-  'Emma Wilson',
-  'Liam Smith',
-  'Ava Miller',
-];
-
-const EMAILS: string[] = [
-  'jefferson@example.com',
-  'sophia@example.com',
-  'daniel@example.com',
-  'emily@example.com',
-  'michael@example.com',
-  'olivia@example.com',
-  'ethan@example.com',
-  'emma@example.com',
-  'liam@example.com',
-  'ava@example.com',
-];
-
-const ROLES: string[] = ['Admin', 'Editor', 'User', 'Manager', 'Guest'];
-
-function randomDate(): string {
-  const start = new Date(2023, 0, 1);
-  const end = new Date();
-  const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-  return date.toISOString().split('T')[0];
-}
-
-function createNewUserEntry(id: number): UserData {
-  return {
-    id: id.toString(),
-    name: NAMES[Math.floor(Math.random() * NAMES.length)],
-    email: EMAILS[Math.floor(Math.random() * EMAILS.length)],
-    role: ROLES[Math.floor(Math.random() * ROLES.length)],
-    createdAt: randomDate(),
-  };
-}
+import { UserService, UserData } from '../../services/user.service';
 
 @Component({
   selector: 'app-list-user',
@@ -77,72 +25,119 @@ function createNewUserEntry(id: number): UserData {
     MatButtonModule
   ],
   templateUrl: './list-user.component.html',
-  styleUrl: './list-user.component.scss',
+  styleUrls: ['./list-user.component.scss']
 })
-export class ListUserComponent implements AfterViewInit {
-  displayedColumns: string[] = ['id', 'name', 'email', 'role', 'createdAt', 'actions'];
-  dataSource: MatTableDataSource<UserData>;
+export class ListUserComponent implements OnInit, AfterViewInit {
+  displayedColumns: string[] = ['id', 'name', 'email', 'role', 'actions'];
+  dataSource: MatTableDataSource<UserData> = new MatTableDataSource<UserData>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private dialog: MatDialog) {
-    const userEntries = Array.from({ length: 20 }, (_, k) => createNewUserEntry(k + 1));
-    this.dataSource = new MatTableDataSource(userEntries);
+  constructor(private dialog: MatDialog, private userService: UserService) { }
+
+  ngOnInit(): void {
+    this.loadUsers();
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
 
-  applyFilter(event: Event) {
+  loadUsers(): void {
+    this.userService.getUsers().subscribe({
+      next: (users: UserData[]) => {
+        this.dataSource.data = users;
+      },
+      error: (err) => console.error('Error fetching users', err)
+    });
+  }
+
+  applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
-
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
   }
 
-  addData() {
+  addData(): void {
     const dialogRef = this.dialog.open(UserDialogComponent, {
-      width: '400px',
+      width: '450px',
       data: { mode: 'add' }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.dataSource.data = [...this.dataSource.data, { id: (this.dataSource.data.length + 1).toString(), ...result }];
+        this.userService.createUser(result).subscribe({
+          next: (newUser: UserData) => {
+            this.dataSource.data = [...this.dataSource.data, newUser];
+          },
+          error: (err) => console.error('Error adding user', err)
+        });
       }
     });
   }
 
-  editData(row: any) {
+  editData(row: UserData): void {
     const dialogRef = this.dialog.open(UserDialogComponent, {
-      width: '400px',
+      width: '450px',
       data: { mode: 'edit', userData: row }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        const index = this.dataSource.data.findIndex(item => item.id === row.id);
-        this.dataSource.data[index] = { ...row, ...result };
-        this.dataSource.data = [...this.dataSource.data];
+        this.userService.updateUser(row.id, result).subscribe({
+          next: (response: any) => {
+            const updatedUser: UserData = response.user; // Extract the user from the response
+            const index = this.dataSource.data.findIndex(item => item.id === row.id);
+            if (index !== -1) {
+              this.dataSource.data[index] = updatedUser;
+              this.dataSource.data = [...this.dataSource.data]; // Refresh table
+            }
+          },
+          error: (err) => console.error('Error updating user', err)
+        });
       }
     });
   }
 
-  viewData(row: any) {
+  viewData(row: UserData): void {
     this.dialog.open(UserDialogComponent, {
-      width: '400px',
+      width: '450px',
       data: { mode: 'view', userData: row }
     });
   }
 
-  deleteData(row: any) {
+  deleteData(row: UserData): void {
     if (confirm('Are you sure you want to delete this user?')) {
-      console.log('Deleted User:', row);
+      this.userService.deleteUser(row.id).subscribe({
+        next: () => {
+          this.dataSource.data = this.dataSource.data.filter(item => item.id !== row.id);
+        },
+        error: (err) => console.error('Error deleting user', err)
+      });
     }
   }
+
+  resetPassword(row: UserData): void {
+    const dialogRef = this.dialog.open(UserDialogComponent, {
+      width: '450px',
+      data: { mode: 'editPassword', userData: row }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(result);
+      if (result && result.password) {
+        this.userService.updatePassword(row.id, result).subscribe({
+          next: (response: any) => {
+            console.log('Password updated successfully for user:', row.id, response);
+          },
+          error: (err) => console.error('Error updating password', err)
+        });
+      }
+    });
+  }
+
 }

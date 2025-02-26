@@ -7,24 +7,25 @@
 
     <form class="mt-4">
       <div class="mb-3">
-        <mat-form-field appearance="fill" class="w-100">
+        <mat-form-field appearance="outline" class="w-100">
           <mat-label>Email</mat-label>
           <input matInput placeholder="Enter your email" type="email" required [(ngModel)]="email" name="email" class="form-control">
         </mat-form-field>
       </div>
 
       <div class="mb-3">
-        <mat-form-field class="w-100">
+        <mat-form-field appearance="outline" class="w-100">
           <mat-label>Password</mat-label>
           <input matInput placeholder="Enter your password" type="password" required [(ngModel)]="password"
             name="password" class="form-control">
         </mat-form-field>
       </div>
 
-      <div>
+      <div class="mt-4">
         <button mat-flat-button color="primary" class="btn btn-primary w-100 py-2 fs-6 fw-semibold"
           (click)="onSubmit()">LOGIN</button>
       </div>
+      <p *ngIf="errorMessage" class="text-danger fs-7 text-center mt-4 fw-bolder">{{ errorMessage }}</p>
     </form>
   </mat-card>
 </div>

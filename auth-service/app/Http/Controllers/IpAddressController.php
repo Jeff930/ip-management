@@ -28,7 +28,7 @@ class IpAddressController extends Controller
 
     public function index()
     {
-        return IpAddress::all();
+        return IpAddress::with(['user:id,name'])->get();
     }
 
     public function update(Request $request, IpAddress $ipAddress)
@@ -59,8 +59,8 @@ class IpAddressController extends Controller
         }
 
         $ipAddress->update($updates);
-
-        return response()->json($ipAddress);
+        $ipAddress->load('user:id,name');
+        return response()->json(['message' => 'IP address updated successfully', 'ip' => $ipAddress]);
     }
 
     public function destroy(IpAddress $ipAddress)

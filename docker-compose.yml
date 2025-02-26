@@ -69,12 +69,14 @@ services:
     restart: always
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/certs:/etc/nginx/certs
     depends_on:
-      - auth-service
-      - ip-service
       - frontend
+      - ip-service
+      - auth-service
     networks:
       - app-network
 

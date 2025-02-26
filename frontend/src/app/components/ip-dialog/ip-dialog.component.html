@@ -1,28 +1,90 @@
-<h2 mat-dialog-title class="fs-5 fw-bold text-primary mb-0">{{ dialogTitle }}</h2>
+<h2 mat-dialog-title class="fs-5 fw-bold text-primary">{{ dialogTitle }}</h2>
+
 <mat-dialog-content class="dialog-content pt-2">
-  <form [formGroup]="ipForm">
-    <div class="d-flex gap-3">
-      <mat-form-field appearance="outline" class="flex-grow-1">
-        <mat-label class="fs-7">IP Address</mat-label>
-        <input matInput formControlName="ip" required />
+  <ng-container *ngIf="!isViewMode; else viewTemplate">
+    <form [formGroup]="ipForm">
+      <div class="d-flex gap-3">
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label class="fs-7">IP Address</mat-label>
+          <input matInput formControlName="ip_address" required />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="flex-grow-1">
+          <mat-label class="fs-7">Label</mat-label>
+          <input matInput formControlName="label" required />
+        </mat-form-field>
+      </div>
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label class="fs-7">Comments</mat-label>
+        <textarea matInput formControlName="comment"></textarea>
       </mat-form-field>
+    </form>
+  </ng-container>
 
-      <mat-form-field appearance="outline" class="flex-grow-1">
-        <mat-label class="fs-7">Label</mat-label>
-        <input matInput formControlName="label" />
-      </mat-form-field>
+  <ng-template #viewTemplate>
+    <div class="px-4 view-details">
+      <div class="d-flex">
+        <div class="me-4 text-end flex-shrink-0 fs-7 label-div">
+          <p>Address ID</p>
+        </div>
+        <div class="fs-7 fw-semibold text-break text-wrap">
+          <p>{{ data.ipData.id ? data.ipData.id : 'N/A' }}</p>
+        </div>
+      </div>
+      <div class="d-flex">
+        <div class="me-4 text-end flex-shrink-0 fs-7 label-div">
+          <p>IP Address</p>
+        </div>
+        <div class="fs-7 fw-semibold text-break text-wrap">
+          <p>{{ data.ipData.ip_address ? data.ipData.ip_address : 'N/A' }}</p>
+        </div>
+      </div>
+      <div class="d-flex">
+        <div class="me-4 text-end flex-shrink-0 fs-7 label-div">
+          <p>User ID</p>
+        </div>
+        <div class="fs-7 fw-semibold text-break text-wrap">
+          <p>{{ data.ipData.user.name ? data.ipData.user.name : 'N/A' }}</p>
+        </div>
+      </div>
+      <div class="d-flex">
+        <div class="me-4 text-end flex-shrink-0 fs-7 label-div">
+          <p>Created At</p>
+        </div>
+        <div class="fs-7 fw-semibold text-break text-wrap">
+          <p>{{ data.ipData.created_at ? data.ipData.created_at : 'N/A' }}</p>
+        </div>
+      </div>
+      <div class="d-flex">
+        <div class="me-4 text-end flex-shrink-0 fs-7 label-div">
+          <p>Updated At</p>
+        </div>
+        <div class="fs-7 fw-semibold text-break text-wrap">
+          <p>{{ data.ipData.updated_at ? data.ipData.updated_at : 'N/A' }}</p>
+        </div>
+      </div>
+      <div class="d-flex">
+        <div class="me-4 text-end flex-shrink-0 fs-7 label-div">
+          <p>Label</p>
+        </div>
+        <div class="fs-7 fw-semibold text-break text-wrap">
+          <p>{{ data.ipData.label ? data.ipData.label : 'N/A' }}</p>
+        </div>
+      </div>
+      <div class="d-flex">
+        <div class="me-4 text-end flex-shrink-0 fs-7 label-div">
+          <p>Comment</p>
+        </div>
+        <div class="fs-7 fw-semibold text-break text-wrap">
+          <p>{{ data.ipData.comment ? data.ipData.comment : 'N/A' }}</p>
+        </div>
+      </div>
     </div>
-
-    <mat-form-field appearance="outline" class="w-100">
-      <mat-label class="fs-7">Comments</mat-label>
-      <textarea matInput formControlName="comment"></textarea>
-    </mat-form-field>
-  </form>
+  </ng-template>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="onCancel()">Cancel</button>
-  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="ipForm.invalid">
+  <button *ngIf="!isViewMode" mat-flat-button color="primary" (click)="onSubmit()" [disabled]="ipForm.invalid">
     {{ isEditMode ? 'Save' : 'Add' }}
   </button>
 </mat-dialog-actions>

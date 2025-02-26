@@ -11,12 +11,18 @@
         <div class="profile-section d-flex align-items-center px-2 py-3">
           <mat-icon class="profile-icon me-2 h-25 w-25 text-white">account_circle</mat-icon>
           <div class="profile-info">
-            <p class="user-name mb-0 fw-semibold fs-6 text-white">Sample Username</p>
-            <p class="user-role mb-0 text-white fs-7 text-white">Sample Role</p>
+            <p class="user-name mb-0 fw-semibold fs-6 text-white">{{ userName }}</p>
+            <p class="user-role mb-0 fs-7 text-white">{{ userRole }}</p>
           </div>
         </div>
 
         <mat-nav-list>
+          <div class="sidebar-option">
+            <a class="sidebar-link side-expansion-panel fs-7 text-white" routerLink="/profile">
+              <mat-icon class="me-2">person</mat-icon>My Profile
+            </a>
+          </div>
+
           <mat-expansion-panel mat-list-item class="side-expansion-panel">
             <mat-expansion-panel-header>
               <mat-panel-title class="fs-7 text-white">
@@ -27,18 +33,19 @@
             <mat-list>
               <mat-list-item class="test">
                 <a routerLink="/list-ip" class="menu-link fs-7 text-white">
-                  <mat-icon class="me-2"> location_on</mat-icon>
+                  <mat-icon class="me-2">location_on</mat-icon>
                   View IPs
                 </a>
               </mat-list-item>
               <mat-list-item>
                 <a routerLink="/manage-ip" class="menu-link fs-7 text-white">
-                  <mat-icon class="me-2"> add_location</mat-icon>
+                  <mat-icon class="me-2">add_location</mat-icon>
                   Add IPs
                 </a>
               </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
+
           <mat-expansion-panel mat-list-item class="side-expansion-panel">
             <mat-expansion-panel-header>
               <mat-panel-title class="fs-7 text-white">
@@ -46,30 +53,34 @@
                 Users
               </mat-panel-title>
             </mat-expansion-panel-header>
-          <mat-list>
-            <mat-list-item>
-              <a routerLink="/list-user" class="menu-link fs-7 text-white">
-                <mat-icon class="me-2">list</mat-icon>
-                View Users
-              </a>
-            </mat-list-item>
-            <mat-list-item>
-              <a routerLink="/manage-user" class="menu-link fs-7 text-white">
-                <mat-icon class="me-2">person_add</mat-icon>
-                Create User
-              </a>
-            </mat-list-item>
-          </mat-list>
-
+            <mat-list>
+              <mat-list-item>
+                <a routerLink="/list-user" class="menu-link fs-7 text-white">
+                  <mat-icon class="me-2">list</mat-icon>
+                  View Users
+                </a>
+              </mat-list-item>
+              <mat-list-item>
+                <a routerLink="/manage-user" class="menu-link fs-7 text-white">
+                  <mat-icon class="me-2">person_add</mat-icon>
+                  Create User
+                </a>
+              </mat-list-item>
+            </mat-list>
           </mat-expansion-panel>
+
           <div class="sidebar-option">
-            <a class="sidebar-link side-expansion-panel fs-7 text-white" routerLink="/list-user"><mat-icon class="me-2">event_note</mat-icon>Audit Log</a>
+            <a class="sidebar-link side-expansion-panel fs-7 text-white" routerLink="/audit-log">
+              <mat-icon class="me-2">event_note</mat-icon>Audit Log
+            </a>
           </div>
-          
+
           <div class="sidebar-option">
-            <a class="sidebar-link side-expansion-panel fs-7 text-white" routerLink="/audit-log"><mat-icon class="me-2">exit_to_app</mat-icon>Logout</a>
+            <a class="sidebar-link side-expansion-panel fs-7 text-white" (click)="logout()">
+              <mat-icon class="me-2">exit_to_app</mat-icon>Logout
+            </a>
           </div>
-            
+
         </mat-nav-list>
       </mat-sidenav>
 

@@ -12,9 +12,6 @@ class User extends Authenticatable implements JWTSubject
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    const ROLE_USER = 'user';
-    const ROLE_ADMIN = 'admin';
-
     /**
      * The attributes that are mass assignable.
      *
@@ -23,7 +20,7 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'name',
         'email',
-        'role',
+        'role_id',
         'password',
     ];
 
@@ -50,9 +47,14 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
-    public function isAdmin()
+     public function role()
     {
-        return $this->role === self::ROLE_ADMIN;
+        return $this->belongsTo(Role::class);
+    }
+
+    public function hasPermission($permission)
+    {
+        return $this->role->permissions()->where('name', $permission)->exists();
     }
 
     public function getJWTIdentifier()
@@ -62,6 +64,15 @@ class User extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'role_name' => $this->role->name ?? null,
+            'permissions' => $this->role->permissions->pluck('name')->toArray() ?? [],
+        ];
     }
+
+    public function getRoleNameAttribute()
+    {
+        return $this->role ? $this->role->name : null;
+    }
+
 }

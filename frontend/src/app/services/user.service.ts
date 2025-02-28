@@ -6,8 +6,15 @@ export interface UserData {
   id: string;
   name: string;
   email: string;
-  role: string;
-  createdAt: string;
+  role_id: string;
+  role_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RoleData {
+  id: number;
+  name: string;
 }
 
 @Injectable({
@@ -36,5 +43,9 @@ export class UserService {
 
   deleteUser(id: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
+  }
+
+  getRoles(): Observable<RoleData[]> {
+    return this.http.get<RoleData[]>(`https://localhost/auth-api/roles`);
   }
 }

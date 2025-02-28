@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +30,7 @@ export class AuthService {
   }
 
   getUser(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/me`);
+    return this.http.get(`${this.apiUrl}/profile`);
   }
 
   logout(): Observable<any> {
@@ -50,10 +51,27 @@ export class AuthService {
   }
 
   updateInfo(data: { name: string; email: string }): Observable<any> {
-    return this.http.put(`${this.apiUrl}/update-profile`, data);
+    return this.http.put(`${this.apiUrl}/profile/update`, data);
   }
 
   changePassword(passwordData: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/change-password`, passwordData);
+    return this.http.put(`${this.apiUrl}/profile/change-password`, passwordData);
+  }
+
+  decodeToken(): any {
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      return jwtDecode(token);
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  }
+  
+  getUserPermissions(): string[] {
+    const decoded = this.decodeToken();
+    return decoded?.permissions || [];
   }
 }

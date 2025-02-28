@@ -3,13 +3,12 @@
     <mat-sidenav-container class="h-100">
       <mat-sidenav mode="side" opened class="side-nav">
 
-        <div class="company-header d-flex align-items-center p-2">
+        <div class="company-header d-flex align-items-center p-3">
           <mat-icon class="fs-3 text-white me-2 h-25">security</mat-icon>
           <h3 class="company-name fs-5 mb-0 fw-semibold text-white">IP Management</h3>
         </div>
 
-        <div class="profile-section d-flex align-items-center px-2 py-3">
-          <mat-icon class="profile-icon me-2 h-25 w-25 text-white">account_circle</mat-icon>
+        <div class="profile-section d-flex align-items-center p-3">
           <div class="profile-info">
             <p class="user-name mb-0 fw-semibold fs-6 text-white">{{ userName }}</p>
             <p class="user-role mb-0 fs-7 text-white">{{ userRole }}</p>
@@ -17,70 +16,25 @@
         </div>
 
         <mat-nav-list>
-          <div class="sidebar-option">
-            <a class="sidebar-link side-expansion-panel fs-7 text-white" routerLink="/profile">
-              <mat-icon class="me-2">person</mat-icon>My Profile
-            </a>
-          </div>
+          <a class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6" routerLink="/profile">
+            <mat-icon class="me-2">person</mat-icon>My Profile
+          </a>
 
-          <mat-expansion-panel mat-list-item class="side-expansion-panel">
-            <mat-expansion-panel-header>
-              <mat-panel-title class="fs-7 text-white">
-                <mat-icon class="me-2">track_changes</mat-icon>
-                IP Addresses
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <mat-list>
-              <mat-list-item class="test">
-                <a routerLink="/list-ip" class="menu-link fs-7 text-white">
-                  <mat-icon class="me-2">location_on</mat-icon>
-                  View IPs
-                </a>
-              </mat-list-item>
-              <mat-list-item>
-                <a routerLink="/manage-ip" class="menu-link fs-7 text-white">
-                  <mat-icon class="me-2">add_location</mat-icon>
-                  Add IPs
-                </a>
-              </mat-list-item>
-            </mat-list>
-          </mat-expansion-panel>
+          <a class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6" routerLink="/list-ip">
+            <mat-icon class="me-2">location_on</mat-icon>IP Addresses
+          </a>
 
-          <mat-expansion-panel mat-list-item class="side-expansion-panel">
-            <mat-expansion-panel-header>
-              <mat-panel-title class="fs-7 text-white">
-                <mat-icon class="me-2">people</mat-icon>
-                Users
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <mat-list>
-              <mat-list-item>
-                <a routerLink="/list-user" class="menu-link fs-7 text-white">
-                  <mat-icon class="me-2">list</mat-icon>
-                  View Users
-                </a>
-              </mat-list-item>
-              <mat-list-item>
-                <a routerLink="/manage-user" class="menu-link fs-7 text-white">
-                  <mat-icon class="me-2">person_add</mat-icon>
-                  Create User
-                </a>
-              </mat-list-item>
-            </mat-list>
-          </mat-expansion-panel>
+          <a *ngIf="checkViewUserPermission()" class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6" routerLink="/list-user">
+            <mat-icon class="me-2">people</mat-icon>Users
+          </a>
 
-          <div class="sidebar-option">
-            <a class="sidebar-link side-expansion-panel fs-7 text-white" routerLink="/audit-log">
-              <mat-icon class="me-2">event_note</mat-icon>Audit Log
-            </a>
-          </div>
+          <a *ngIf="checkViewLogPermission()" class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6" routerLink="/audit-log">
+            <mat-icon class="me-2">event_note</mat-icon>Audit Log
+          </a>
 
-          <div class="sidebar-option">
-            <a class="sidebar-link side-expansion-panel fs-7 text-white" (click)="logout()">
-              <mat-icon class="me-2">exit_to_app</mat-icon>Logout
-            </a>
-          </div>
-
+          <a class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6" (click)="logout()">
+            <mat-icon class="me-2">exit_to_app</mat-icon>Logout
+          </a>
         </mat-nav-list>
       </mat-sidenav>
 

@@ -63,7 +63,7 @@ export class ProfileComponent implements OnInit {
     if (this.userInfoForm.valid) {
       this.authService.updateInfo(this.userInfoForm.value).subscribe({
         next: (response: any) => {
-          this.userData = response.user;
+          this.userData = response;
         },
         error: (err) => console.error('Error updating user info:', err)
       });

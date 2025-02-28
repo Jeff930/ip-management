@@ -40,6 +40,8 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
+        $user = auth()->user()->load('role.permissions'); 
+
         return response()->json(auth()->user());
     }
 
@@ -62,7 +64,7 @@ class AuthController extends Controller
             'expires_in'   => auth()->factory()->getTTL() * 60
         ]);
     }
-    
+
     public function updateProfile(Request $request)
     {
         $user = auth()->user();
@@ -77,10 +79,7 @@ class AuthController extends Controller
             'email' => $request->email,
         ]);
 
-        return response()->json([
-            'message' => 'User information updated successfully',
-            'user'    => $user
-        ]);
+        return response()->json($user);
     }
 
     public function changePassword(Request $request)

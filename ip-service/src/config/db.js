@@ -1,31 +1,27 @@
 const express = require("express");
-const mongoose = require("mongoose");
+const connectDB = require("./config/db");
 require("dotenv").config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-const mongoURI = process.env.MONGO_URI || "mongodb://mongo:27017/ip_management";
-
-mongoose.connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then(() => console.log("✅ Connected to MongoDB"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+connectDB();
 
 app.use(express.json());
 
 const apiRouter = express.Router();
-
 app.use("/ip-api", apiRouter);
 
 apiRouter.get("/test", async (req, res) => {
   try {
+    if (!mongoose.connection.readyState) {
+      throw new Error("MongoDB not connected");
+    }
     const collections = await mongoose.connection.db.listCollections().toArray();
-    res.send({ message: "MongoDB Connected!", collections });
+    res.send({ message: "✅ MongoDB Connected!", collections });
   } catch (error) {
-    res.status(500).json({ error: "MongoDB Connection Failed" });
+    console.error("❌ MongoDB Connection Error:", error);
+    res.status(500).json({ error: "MongoDB Connection Failed", details: error.message });
   }
 });
 

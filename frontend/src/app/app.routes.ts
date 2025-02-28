@@ -24,7 +24,9 @@ export const routes: Routes = [
       {
         path: 'list-user',
         loadComponent: () =>
-          import('./pages/list-user/list-user.component').then((m) => m.ListUserComponent)
+          import('./pages/list-user/list-user.component').then((m) => m.ListUserComponent),
+        canActivate: [AuthGuard],
+        data: { permission: 'view-users' }
       },
       {
         path: 'manage-ip',
@@ -39,8 +41,15 @@ export const routes: Routes = [
       {
         path: 'audit-log',
         loadComponent: () =>
-          import('./pages/audit-log/audit-log.component').then((m) => m.AuditLogComponent)
+          import('./pages/audit-log/audit-log.component').then((m) => m.AuditLogComponent),
+        canActivate: [AuthGuard],
+        data: { permission: 'view-logs' }
       }
     ]
+  },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./pages/not-found/not-found.component').then((m) => m.NotFoundComponent)
   }
 ];

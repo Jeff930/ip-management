@@ -30,7 +30,7 @@ export class AppComponent implements OnInit {
           next: (user) => {
             console.log("user",user);
             this.userName = user.name;
-            this.userRole = user.role;
+            this.userRole = user.role.name;
           },
           error: (err) => {
             console.error('Error fetching user data:', err);
@@ -38,6 +38,14 @@ export class AppComponent implements OnInit {
         });
       }
     });
+  }
+
+  checkViewUserPermission(){
+    return this.authService.getUserPermissions().includes('view-users');
+  }
+
+  checkViewLogPermission() {
+    return this.authService.getUserPermissions().includes('view-logs');
   }
 
   logout(): void {

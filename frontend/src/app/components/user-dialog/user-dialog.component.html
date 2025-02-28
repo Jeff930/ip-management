@@ -16,9 +16,10 @@
 
         <mat-form-field appearance="outline" class="w-100">
           <mat-label class="fs-7">Role</mat-label>
-          <mat-select formControlName="role" required>
-            <mat-option value="admin">Admin</mat-option>
-            <mat-option value="user">User</mat-option>
+          <mat-select formControlName="role">
+            <mat-option *ngFor="let role of roles" [value]="role.id">
+              {{ role.name }}
+            </mat-option>
           </mat-select>
         </mat-form-field>
 
@@ -100,7 +101,7 @@
           <p>Role</p>
         </div>
         <div class="fs-7 fw-semibold text-break text-wrap">
-          <p>{{ data.userData.role ? data.userData.role : 'N/A' }}</p>
+          <p>{{ data.userData.role_name ? data.userData.role_name : 'N/A' }}</p>
         </div>
       </div>
     </div>

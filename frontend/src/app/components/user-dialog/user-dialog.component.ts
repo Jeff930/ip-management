@@ -5,7 +5,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { RoleData } from '../../services/user.service';
 import { CommonModule } from '@angular/common';
+
 import {
   MatDialog,
   MatDialogActions,
@@ -19,6 +21,7 @@ import {
 export interface UserDialogData {
   mode: 'add' | 'edit' | 'view' | 'editPassword';
   userData?: any;
+  roles: RoleData[];
 }
 
 @Component({
@@ -46,12 +49,16 @@ export class UserDialogComponent {
   isEditMode: boolean = false;
   isViewMode: boolean = false;
   isEditPasswordMode: boolean = false;
+  roles: RoleData[] = [];
 
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<UserDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: UserDialogData
   ) {
+    console.log(data.roles);
+    this.roles = data.roles || [];
+
     this.isEditMode = data.mode === 'edit';
     this.isViewMode = data.mode === 'view';
     this.isEditPasswordMode = data.mode === 'editPassword';
@@ -78,7 +85,7 @@ export class UserDialogComponent {
       this.userForm = this.fb.group({
         name: [data.userData?.name || '', [Validators.required]],
         email: [data.userData?.email || '', [Validators.required, Validators.email]],
-        role: [data.userData?.role || '', [Validators.required]],
+        role: [data.userData?.role_id || '', [Validators.required]],
         password: [data.mode === 'add' ? '' : ''],
         password_confirmation: [data.mode === 'add' ? '' : ''],
       });

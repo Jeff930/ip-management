@@ -9,7 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { UserDialogComponent } from '../../components/user-dialog/user-dialog.component';
-import { UserService, UserData } from '../../services/user.service';
+import { UserService, UserData, RoleData } from '../../services/user.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-list-user',
@@ -30,6 +31,7 @@ import { UserService, UserData } from '../../services/user.service';
 export class ListUserComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['id', 'name', 'email', 'role', 'actions'];
   dataSource: MatTableDataSource<UserData> = new MatTableDataSource<UserData>();
+  roles: RoleData[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -37,7 +39,7 @@ export class ListUserComponent implements OnInit, AfterViewInit {
   constructor(private dialog: MatDialog, private userService: UserService) { }
 
   ngOnInit(): void {
-    this.loadUsers();
+    this.loadData();
   }
 
   ngAfterViewInit(): void {
@@ -45,12 +47,16 @@ export class ListUserComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
   }
 
-  loadUsers(): void {
-    this.userService.getUsers().subscribe({
-      next: (users: UserData[]) => {
+  loadData(): void {
+    forkJoin({
+      users: this.userService.getUsers(),
+      roles: this.userService.getRoles()
+    }).subscribe({
+      next: ({ users, roles }) => {
         this.dataSource.data = users;
+        this.roles = roles;
       },
-      error: (err) => console.error('Error fetching users', err)
+      error: (err) => console.error('Error loading data', err)
     });
   }
 
@@ -65,14 +71,16 @@ export class ListUserComponent implements OnInit, AfterViewInit {
   addData(): void {
     const dialogRef = this.dialog.open(UserDialogComponent, {
       width: '450px',
-      data: { mode: 'add' }
+      data: { mode: 'add', roles: this.roles }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        console.log(result);
         this.userService.createUser(result).subscribe({
-          next: (newUser: UserData) => {
-            this.dataSource.data = [...this.dataSource.data, newUser];
+          next: (newUser) => {
+            this.dataSource.data.push(newUser);
+            this.dataSource.data = [...this.dataSource.data];
           },
           error: (err) => console.error('Error adding user', err)
         });
@@ -83,18 +91,18 @@ export class ListUserComponent implements OnInit, AfterViewInit {
   editData(row: UserData): void {
     const dialogRef = this.dialog.open(UserDialogComponent, {
       width: '450px',
-      data: { mode: 'edit', userData: row }
+      data: { mode: 'edit', userData: row, roles: this.roles }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.userService.updateUser(row.id, result).subscribe({
           next: (response: any) => {
-            const updatedUser: UserData = response.user; // Extract the user from the response
+            const updatedUser: UserData = response.user;
             const index = this.dataSource.data.findIndex(item => item.id === row.id);
             if (index !== -1) {
               this.dataSource.data[index] = updatedUser;
-              this.dataSource.data = [...this.dataSource.data]; // Refresh table
+              this.dataSource.data = [...this.dataSource.data];
             }
           },
           error: (err) => console.error('Error updating user', err)

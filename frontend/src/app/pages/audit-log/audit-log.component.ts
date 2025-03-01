@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, OnInit } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -7,55 +7,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-
-export interface AuditLogEntry {
-  timestamp: string;
-  action: string;
-  description: string;
-  user: string;
-  session: string;
-}
-
-const USERS: string[] = [
-  'Jefferson',
-  'Sophia',
-  'Daniel',
-  'Emily',
-  'Michael',
-  'Olivia',
-  'Ethan',
-  'Emma',
-  'Liam',
-  'Ava',
-];
-
-const ACTIONS: string[] = ['Added', 'Updated', 'Deleted', 'Viewed', 'Login', 'Logout'];
-
-const DESCRIPTIONS: { [key: string]: string } = {
-  Added: 'Added a new IP entry',
-  Updated: 'Updated an IP entry',
-  Deleted: 'Deleted an IP entry',
-  Viewed: 'Viewed an IP entry',
-  Login: 'User logged in',
-  Logout: 'User logged out',
-};
-
-function randomTimestamp(): string {
-  return new Date(
-    new Date().getTime() - Math.floor(Math.random() * 10000000000)
-  ).toISOString();
-}
-
-function createAuditLogEntry(): AuditLogEntry {
-  const action = ACTIONS[Math.floor(Math.random() * ACTIONS.length)];
-  return {
-    timestamp: randomTimestamp(),
-    action: action,
-    description: DESCRIPTIONS[action],
-    user: USERS[Math.floor(Math.random() * USERS.length)],
-    session: `Session-${Math.floor(Math.random() * 1000)}`,
-  };
-}
+import { AuditService, LogData } from '../../services/audit.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-audit-log',
@@ -69,21 +22,31 @@ function createAuditLogEntry(): AuditLogEntry {
     MatCardModule,
     MatIconModule,
     MatButtonModule,
+    CommonModule
   ],
   templateUrl: './audit-log.component.html',
   styleUrl: './audit-log.component.scss',
 })
-export class AuditLogComponent implements AfterViewInit {
-  auditLogColumns: string[] = ['timestamp', 'action', 'description', 'user', 'session'];
-  auditLogDataSource: MatTableDataSource<AuditLogEntry>;
+export class AuditLogComponent implements OnInit, AfterViewInit {
+  auditLogColumns: string[] = ['createdAt', 'session','actor', 'action','target', 'changes'];
+  auditLogDataSource: MatTableDataSource<LogData> = new MatTableDataSource<LogData>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor() {
-    const auditLogEntries = Array.from({ length: 20 }, () => createAuditLogEntry());
-    this.auditLogDataSource = new MatTableDataSource(auditLogEntries);
-    console.log(this.auditLogDataSource);
+  constructor(private auditService: AuditService) {}
+
+  ngOnInit() {
+    this.fetchAuditLogs();
+  }
+
+  fetchAuditLogs() {
+    this.auditService.getAuditLogs().subscribe({
+      next: (data) => {
+        this.auditLogDataSource.data = data;
+      },
+      error: (err) => console.error('Error fetching IPs', err)
+    });
   }
 
   ngAfterViewInit() {
@@ -98,5 +61,9 @@ export class AuditLogComponent implements AfterViewInit {
     if (this.auditLogDataSource.paginator) {
       this.auditLogDataSource.paginator.firstPage();
     }
+  }
+
+  getKeys(obj: any): string[] {
+    return Object.keys(obj);
   }
 }

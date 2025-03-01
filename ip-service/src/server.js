@@ -30,7 +30,7 @@ apiRouter.get("/test", async (req, res) => {
 });
 
 const ipRoutes = require("./routes/ipRoutes");
-const auditLogRoutes = require("./routes/auditLogRoutes");
+const auditLogRoutes = require("./routes/auditRoutes");
 
 app.use("/ip-api/ips", ipRoutes);
 app.use("/ip-api/audit-logs", auditLogRoutes);

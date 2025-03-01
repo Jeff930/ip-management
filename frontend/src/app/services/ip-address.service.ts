@@ -3,19 +3,23 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface IpData {
-  id: string;
+  _id: string;
   ip: string;
   label: string;
-  createdAt: string;
-  updatedAt?: string;
   comment?: string;
+  addedByUserId: string;
+  addedByUserName: string;
+  addedByUserEmail: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class IpAddressService {
-  private apiUrl = 'https://localhost/auth-api/ip-addresses';
+  private apiUrl = 'https://localhost/ip-api/ips'; 
 
   constructor(private http: HttpClient) { }
 

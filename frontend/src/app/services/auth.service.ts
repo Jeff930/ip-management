@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, switchMap, catchError, tap, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -14,9 +13,30 @@ export class AuthService {
 
   login(credentials: { email: string; password: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
-      tap((response: any) => {
-        localStorage.setItem('access_token', response.access_token);
-        this.authStatus.next(true);
+      switchMap((response: any) => {
+        const token = response.access_token;
+        const currentUser = response.user;
+        if (!token) {
+          return throwError(() => new Error('Login response did not include access token'));
+        }
+        return this.http.post('https://localhost/ip-api/audit-logs/log-login', { user_id: response.user_id }, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).pipe(
+          tap(() => {
+            localStorage.setItem('access_token', token); 
+            localStorage.setItem('currentUser', JSON.stringify(currentUser)); 
+            this.authStatus.next(true);
+            console.log('Login event successfully logged');
+          }),
+          catchError(err => {
+            console.error('Log-login failed:', err);
+            return throwError(() => new Error('Failed to log login event'));
+          })
+        );
+      }),
+      catchError(err => {
+        console.error('Login failed:', err);
+        return throwError(() => new Error('Invalid login credentials or failed audit logging'));
       })
     );
   }
@@ -30,14 +50,36 @@ export class AuthService {
   }
 
   getUser(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/profile`);
+    return this.http.get(`${this.apiUrl}/profile`).pipe(
+      tap(user => {
+        localStorage.setItem('currentUser', JSON.stringify(user));
+      })
+    );
   }
 
+
   logout(): Observable<any> {
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+      return throwError(() => new Error('No access token found.'));
+    }
+
     return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
       tap(() => {
-        localStorage.removeItem('access_token');
+        localStorage.removeItem('access_token'); 
         this.authStatus.next(false);
+        console.log('User successfully logged out.');
+      }),
+      switchMap(() => {
+        return this.http.post('https://localhost/ip-api/audit-logs/log-logout', {}, {
+          headers: { Authorization: `Bearer ${token}` } 
+        });
+      }),
+      tap(() => console.log('Logout event successfully logged')),
+      catchError(err => {
+        console.error('Log-logout failed:', err);
+        return throwError(() => new Error('Logout event logging failed.'));
       })
     );
   }
@@ -70,6 +112,55 @@ export class AuthService {
     }
   }
   
+  getUserEmail(): string {
+    const userString = localStorage.getItem('currentUser');
+
+    if (!userString) {
+      return '';
+    }
+
+    try {
+      const user = JSON.parse(userString);
+      return user?.email || null;
+    } catch (error) {
+      console.error("Error parsing user data from localStorage", error);
+      return '';
+    }
+  }
+
+  getUserName(): string {
+    const userString = localStorage.getItem('currentUser');
+
+    if (!userString) {
+      return '';
+    }
+
+    try {
+      const user = JSON.parse(userString);
+      return user?.name || null;
+    } catch (error) {
+      console.error("Error parsing user data from localStorage", error);
+      return '';
+    }
+  }
+
+  getUserId(): string {
+    const userString = localStorage.getItem('currentUser');
+
+    if (!userString) {
+      return '';
+    }
+
+    try {
+      const user = JSON.parse(userString);
+      return user?.id || null;
+    } catch (error) {
+      console.error("Error parsing user data from localStorage", error);
+      return '';
+    }
+  }
+
+
   getUserPermissions(): string[] {
     const decoded = this.decodeToken();
     return decoded?.permissions || [];

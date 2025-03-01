@@ -6,7 +6,7 @@
       <div class="d-flex gap-3">
         <mat-form-field appearance="outline" class="flex-grow-1">
           <mat-label class="fs-7">IP Address</mat-label>
-          <input matInput formControlName="ip_address" required />
+          <input matInput formControlName="ip" required />
         </mat-form-field>
         <mat-form-field appearance="outline" class="flex-grow-1">
           <mat-label class="fs-7">Label</mat-label>
@@ -24,10 +24,10 @@
     <div class="px-4 view-details">
       <div class="d-flex">
         <div class="me-4 text-end flex-shrink-0 fs-7 label-div">
-          <p>Address ID</p>
+          <p>ID</p>
         </div>
         <div class="fs-7 fw-semibold text-break text-wrap">
-          <p>{{ data.ipData.id ? data.ipData.id : 'N/A' }}</p>
+          <p>{{ data.ipData._id || 'N/A' }}</p>
         </div>
       </div>
       <div class="d-flex">
@@ -35,15 +35,15 @@
           <p>IP Address</p>
         </div>
         <div class="fs-7 fw-semibold text-break text-wrap">
-          <p>{{ data.ipData.ip_address ? data.ipData.ip_address : 'N/A' }}</p>
+          <p>{{ data.ipData.ip || 'N/A' }}</p>
         </div>
       </div>
       <div class="d-flex">
         <div class="me-4 text-end flex-shrink-0 fs-7 label-div">
-          <p>User ID</p>
+          <p>Added By</p>
         </div>
         <div class="fs-7 fw-semibold text-break text-wrap">
-          <p>{{ data.ipData.user.name ? data.ipData.user.name : 'N/A' }}</p>
+          <p>{{ data.ipData.addedByUserName  || 'N/A' }} (<span class="text-primary">{{data.ipData.addedByUserEmail || 'N/A' }}</span>)</p>
         </div>
       </div>
       <div class="d-flex">
@@ -51,7 +51,7 @@
           <p>Created At</p>
         </div>
         <div class="fs-7 fw-semibold text-break text-wrap">
-          <p>{{ data.ipData.created_at ? data.ipData.created_at : 'N/A' }}</p>
+          <p>{{ data.ipData.createdAt || 'N/A' }}</p>
         </div>
       </div>
       <div class="d-flex">
@@ -59,7 +59,7 @@
           <p>Updated At</p>
         </div>
         <div class="fs-7 fw-semibold text-break text-wrap">
-          <p>{{ data.ipData.updated_at ? data.ipData.updated_at : 'N/A' }}</p>
+          <p>{{ data.ipData.updatedAt || 'N/A' }}</p>
         </div>
       </div>
       <div class="d-flex">
@@ -67,7 +67,7 @@
           <p>Label</p>
         </div>
         <div class="fs-7 fw-semibold text-break text-wrap">
-          <p>{{ data.ipData.label ? data.ipData.label : 'N/A' }}</p>
+          <p>{{ data.ipData.label || 'N/A' }}</p>
         </div>
       </div>
       <div class="d-flex">
@@ -75,7 +75,7 @@
           <p>Comment</p>
         </div>
         <div class="fs-7 fw-semibold text-break text-wrap">
-          <p>{{ data.ipData.comment ? data.ipData.comment : 'N/A' }}</p>
+          <p>{{ data.ipData.comment || 'N/A' }}</p>
         </div>
       </div>
     </div>

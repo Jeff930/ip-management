@@ -36,8 +36,6 @@ router.post("/", authenticateToken, checkPermission("create-ip"), async (req, re
   const addedByUserName = req.user.user_name;
   const addedByUserEmail = req.user.email;
 
-  console.log("from test", req.user);
-
   if (!ip || !label) {
     return res.status(400).json({ error: "IP address and label are required." });
   }

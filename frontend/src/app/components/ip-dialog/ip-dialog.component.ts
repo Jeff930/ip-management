@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 export interface IpDialogData {
   mode: 'add' | 'edit' | 'view';
@@ -36,6 +37,7 @@ export class IpDialogComponent {
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<IpDialogComponent>,
+    private authService: AuthService,
     @Inject(MAT_DIALOG_DATA) public data: IpDialogData
   ) {
     this.isEditMode = data.mode === 'edit';
@@ -43,13 +45,13 @@ export class IpDialogComponent {
     this.dialogTitle = data.mode === 'add' ? 'Add IP Address' : data.mode === 'edit' ? 'Edit IP Address' : 'View IP Address';
 
     this.ipForm = this.fb.group({
-      ip_address: [data.ipData?.ip_address || '', [Validators.required]],
+      ip: [{ value: data.ipData?.ip || '', disabled: !this.canEditAllFields() }, [Validators.required]],
       label: [data.ipData?.label || ''],
-      comment: [data.ipData?.comment || '']
+      comment: [{ value: data.ipData?.comment || '', disabled: !this.canEditAllFields() }],
     });
 
     if (this.isViewMode) {
-      this.ipForm.disable(); 
+      this.ipForm.disable();
     }
   }
 
@@ -61,5 +63,16 @@ export class IpDialogComponent {
     if (this.ipForm.valid) {
       this.dialogRef.close(this.ipForm.value);
     }
+  }
+
+  canEditAllFields(): boolean {
+    if (this.data.mode === 'add') {
+      return true; 
+    }
+
+    const permissions = this.authService.getUserPermissions();
+    const userId = this.authService.getUserId();
+
+    return permissions.includes('delete-ip') || userId == this.data.ipData.addedByUserId;
   }
 }

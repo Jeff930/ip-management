@@ -10,6 +10,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { IpDialogComponent } from '../../components/ip-dialog/ip-dialog.component';
 import { IpAddressService, IpData } from '../../services/ip-address.service';
+import { AuthService } from '../../services/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-list-ip',
@@ -23,21 +25,24 @@ import { IpAddressService, IpData } from '../../services/ip-address.service';
     MatCardModule,
     MatIconModule,
     MatButtonModule,
+    CommonModule
   ],
   templateUrl: './list-ip.component.html',
-  styleUrls: ['./list-ip.component.scss'] // Note: Changed "styleUrl" to "styleUrls"
+  styleUrls: ['./list-ip.component.scss']
 })
 export class ListIpComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['id', 'addedBy', 'ip', 'label', 'actions'];
+  displayedColumns: string[] = ['_id', 'ip', 'addedByUserName', 'label', 'actions'];
   dataSource: MatTableDataSource<IpData> = new MatTableDataSource<IpData>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private dialog: MatDialog, private ipService: IpAddressService) { }
+  constructor(private dialog: MatDialog, private ipService: IpAddressService, private authService: AuthService) { }
+  canDeleteIP = false;
 
   ngOnInit(): void {
     this.loadIpAddresses();
+    this.checkDeletePermission();
   }
 
   ngAfterViewInit(): void {
@@ -89,15 +94,12 @@ export class ListIpComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.ipService.updateIpAddress(row.id, result).subscribe({
-          next: (response: any) => {
-            const updatedIp = response.ip; // Extract the user from the response
-            const index = this.dataSource.data.findIndex(item => item.id === row.id);
+        this.ipService.updateIpAddress(row._id, result).subscribe({
+          next: (updatedIp) => {
+            const index = this.dataSource.data.findIndex(item => item._id === row._id);
             if (index !== -1) {
-              console.log(updatedIp);
               this.dataSource.data[index] = updatedIp;
-              console.log(this.dataSource.data);
-              this.dataSource.data = [...this.dataSource.data]; // Refresh table data
+              this.dataSource.data = [...this.dataSource.data]; 
             }
           },
           error: (err) => console.error('Error updating IP', err)
@@ -115,12 +117,17 @@ export class ListIpComponent implements OnInit, AfterViewInit {
 
   deleteData(row: IpData): void {
     if (confirm('Are you sure you want to delete this IP?')) {
-      this.ipService.deleteIpAddress(row.id).subscribe({
+      this.ipService.deleteIpAddress(row._id).subscribe({
         next: () => {
-          this.dataSource.data = this.dataSource.data.filter(item => item.id !== row.id);
+          this.dataSource.data = this.dataSource.data.filter(item => item._id !== row._id);
         },
         error: (err) => console.error('Error deleting IP', err)
       });
     }
+  }
+
+  checkDeletePermission() {
+    const permissions = this.authService.getUserPermissions();
+    this.canDeleteIP = permissions.includes('delete-ip');
   }
 }

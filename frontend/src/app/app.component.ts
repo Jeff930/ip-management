@@ -6,11 +6,13 @@ import { MatListModule } from '@angular/material/list';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from './services/auth.service';
+import { LoaderComponent } from './components/loader/loader.component';
+import { LoadingService } from './services/loading.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, RouterModule, MatSidenavModule, MatListModule, MatExpansionModule, MatIconModule],
+  imports: [RouterOutlet, CommonModule, RouterModule, MatSidenavModule, MatListModule, MatExpansionModule, MatIconModule, LoaderComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
@@ -20,7 +22,7 @@ export class AppComponent implements OnInit {
   userName = 'Sample Username';
   userRole = 'Sample Role';
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router, private loadingService: LoadingService) { }
 
   ngOnInit(): void {
     this.authService.getAuthStatus().subscribe((status) => {
@@ -41,9 +43,16 @@ export class AppComponent implements OnInit {
   }
 
   logout(): void {
+    this.loadingService.show();
     this.authService.logout().subscribe({
-      next: () => this.router.navigate(['/login']),
-      error: (err) => console.error('Logout error:', err)
+      next: () => {
+        this.router.navigate(['/login']);
+        this.loadingService.hide();
+      },
+      error: (err) => { 
+        console.error('Logout error:', err);
+        this.loadingService.hide();
+      }
     });
   }
 }

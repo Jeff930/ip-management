@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { AuditService, LogData } from '../../services/audit.service';
 import { CommonModule } from '@angular/common';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
+import { LoadingService } from '../../services/loading.service';
 
 @Component({
   selector: 'app-audit-log',
@@ -36,18 +37,23 @@ export class AuditLogComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private auditService: AuditService) {}
+  constructor(private auditService: AuditService, private loadingService: LoadingService) {}
 
   ngOnInit() {
     this.fetchAuditLogs();
   }
 
   fetchAuditLogs() {
+    this.loadingService.show();
     this.auditService.getAuditLogs().subscribe({
       next: (data) => {
         this.auditLogDataSource.data = data;
+        this.loadingService.hide();
       },
-      error: (err) => console.error('Error fetching IPs', err)
+      error: (err) => {
+        console.error('Error fetching IPs', err);
+        this.loadingService.hide();
+      }
     });
   }
 

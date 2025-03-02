@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service'; 
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
+import { LoadingService } from '../../services/loading.service';
 
 @Component({
   selector: 'app-profile',
@@ -21,7 +22,7 @@ export class ProfileComponent implements OnInit {
   passwordForm: FormGroup;
   userData: any = {};
 
-  constructor(private fb: FormBuilder, private authService: AuthService) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private loadingService: LoadingService) {
     this.userInfoForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]]
@@ -42,15 +43,21 @@ export class ProfileComponent implements OnInit {
   }
 
   loadUserData(): void {
+    this.loadingService.show();
     this.authService.getUser().subscribe({
       next: (response: any) => {
+        console.log(response);
         this.userData = response;
         this.userInfoForm.patchValue({
           name: this.userData.name,
           email: this.userData.email
         });
+        this.loadingService.hide();
       },
-      error: (err) => console.error('Error fetching user data:', err)
+      error: (err) => {
+        console.error('Error fetching user data:', err);
+        this.loadingService.hide();
+      }
     });
   }
 
@@ -61,24 +68,33 @@ export class ProfileComponent implements OnInit {
   };
 
   updateUserInfo(): void {
+    this.loadingService.show();
     if (this.userInfoForm.valid) {
       this.authService.updateInfo(this.userInfoForm.value).subscribe({
         next: (response: any) => {
           this.userData = response;
+          this.loadingService.hide();
         },
-        error: (err) => console.error('Error updating user info:', err)
+        error: (err) => {
+          console.error('Error updating user info:', err);
+          this.loadingService.hide();
+        }
       });
     }
   }
 
   updatePassword(): void {
     if (this.passwordForm.valid) {
+      this.loadingService.show();
       this.authService.changePassword(this.passwordForm.value).subscribe({
         next: (response: any) => {
           console.log('Password updated successfully:', response);
           this.passwordForm.reset();
+          this.loadingService.hide();
         },
-        error: (err) => console.error('Error updating password:', err)
+        error: (err) => {console.error('Error updating password:', err);
+          this.loadingService.hide();
+        }
       });
     }
   }

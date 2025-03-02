@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { DateFormatPipe } from '../../pipes/date-format.pipe';
 
 export interface IpDialogData {
   mode: 'add' | 'edit' | 'view';
@@ -25,7 +26,7 @@ export interface IpDialogData {
   selector: 'app-ip-dialog',
   templateUrl: './ip-dialog.component.html',
   imports: [MatButtonModule, MatDialogActions, MatDialogClose, MatDialogTitle, MatDialogContent, MatFormFieldModule, FormsModule, MatInputModule,
-    ReactiveFormsModule, CommonModule],
+    ReactiveFormsModule, CommonModule, DateFormatPipe],
   styleUrls: ['./ip-dialog.component.scss']
 })
 export class IpDialogComponent {

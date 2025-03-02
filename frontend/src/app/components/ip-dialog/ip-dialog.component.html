@@ -51,7 +51,7 @@
           <p>Created At</p>
         </div>
         <div class="fs-7 fw-semibold text-break text-wrap">
-          <p>{{ data.ipData.createdAt || 'N/A' }}</p>
+          <p>{{ data.ipData.createdAt | dateFormat }}</p>
         </div>
       </div>
       <div class="d-flex">
@@ -59,7 +59,7 @@
           <p>Updated At</p>
         </div>
         <div class="fs-7 fw-semibold text-break text-wrap">
-          <p>{{ data.ipData.updatedAt || 'N/A' }}</p>
+          <p>{{ data.ipData.updatedAt | dateFormat }}</p>
         </div>
       </div>
       <div class="d-flex">

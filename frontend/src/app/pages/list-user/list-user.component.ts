@@ -13,6 +13,8 @@ import { UserService, UserData, RoleData } from '../../services/user.service';
 import { forkJoin } from 'rxjs';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { LoadingService } from '../../services/loading.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-list-user',
@@ -39,7 +41,8 @@ export class ListUserComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private dialog: MatDialog, private userService: UserService, private loadingService: LoadingService) { }
+  constructor(private dialog: MatDialog, private userService: UserService, private loadingService: LoadingService,
+    private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.loadData();
@@ -64,6 +67,7 @@ export class ListUserComponent implements OnInit, AfterViewInit {
       error: (err) => {
         console.error('Error loading data', err);
         this.loadingService.hide();
+        this.snackBar.open('Failed fetching users and roles. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
       }
     });
   }
@@ -90,10 +94,12 @@ export class ListUserComponent implements OnInit, AfterViewInit {
             this.dataSource.data.push(newUser);
             this.dataSource.data = [...this.dataSource.data];
             this.loadingService.hide();
+             this.snackBar.open('Added user successfully', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
           },
           error: (err) => {
             console.error('Error adding user', err);
             this.loadingService.hide();
+            this.snackBar.open('Failed adding new user. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
           }
         });
       }
@@ -118,10 +124,12 @@ export class ListUserComponent implements OnInit, AfterViewInit {
               this.dataSource.data = [...this.dataSource.data];
             }
             this.loadingService.hide();
+            this.snackBar.open('Updated user successfully', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
           },
           error: (err) => {
             console.error('Error updating user', err);
             this.loadingService.hide();
+            this.snackBar.open('Failed updating user. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
           }
         });
       }
@@ -136,19 +144,31 @@ export class ListUserComponent implements OnInit, AfterViewInit {
   }
 
   deleteData(row: UserData): void {
-    if (confirm('Are you sure you want to delete this user?')) {
-      this.loadingService.show();
-      this.userService.deleteUser(row.id).subscribe({
-        next: () => {
-          this.dataSource.data = this.dataSource.data.filter(item => item.id !== row.id);
-          this.loadingService.hide();
-        },
-        error: (err) => {
-          console.error('Error deleting user', err);
-          this.loadingService.hide();
-        }
-      });
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete ${row.name}? This action cannot be undone.`
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) { 
+        this.loadingService.show();
+        this.userService.deleteUser(row.id).subscribe({
+          next: () => {
+            this.dataSource.data = this.dataSource.data.filter(item => item.id !== row.id);
+            this.loadingService.hide();
+            this.snackBar.open('Deleted user successfully', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
+          },
+          error: (err) => {
+            console.error('Error deleting user', err);
+            this.loadingService.hide();
+            this.snackBar.open('Failed deleting user. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+          }
+        });
+      }
+    });
   }
 
   resetPassword(row: UserData): void {
@@ -164,10 +184,12 @@ export class ListUserComponent implements OnInit, AfterViewInit {
           next: (response: any) => {
             console.log('Password updated successfully for user:', row.id, response);
             this.loadingService.hide();
+            this.snackBar.open('Updated password successfully', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
           },
           error: (err) => { 
             console.error('Error updating password', err);
             this.loadingService.hide();
+            this.snackBar.open('Failed resetting password. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
           }
         });
       }

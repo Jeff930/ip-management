@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, switchMap, catchError, tap, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -17,27 +18,20 @@ export class AuthService {
         const token = response.access_token;
         const currentUser = response.user;
         if (!token) {
-          return throwError(() => new Error('Login response did not include access token'));
+          return throwError(() => 'Login response did not include access token');
         }
         return this.http.post('https://localhost/ip-api/audit-logs/log-login', { user_id: response.user_id }, {
           headers: { Authorization: `Bearer ${token}` }
         }).pipe(
           tap(() => {
-            localStorage.setItem('access_token', token); 
-            localStorage.setItem('currentUser', JSON.stringify(currentUser)); 
+            localStorage.setItem('access_token', token);
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
             this.authStatus.next(true);
-            console.log('Login event successfully logged');
           }),
-          catchError(err => {
-            console.error('Log-login failed:', err);
-            return throwError(() => new Error('Failed to log login event'));
-          })
+          catchError(err => throwError(() => err.error.error))
         );
       }),
-      catchError(err => {
-        console.error('Login failed:', err);
-        return throwError(() => new Error('Invalid login credentials or failed audit logging'));
-      })
+      catchError(err => throwError(() => err.error.error))
     );
   }
 
@@ -45,7 +39,8 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/refresh`, {}).pipe(
       tap((response: any) => {
         localStorage.setItem('access_token', response.access_token);
-      })
+      }),
+      catchError(err => throwError(() => err.error.error))
     );
   }
 
@@ -53,34 +48,49 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/profile`).pipe(
       tap(user => {
         localStorage.setItem('currentUser', JSON.stringify(user));
+      }),
+      catchError(err => throwError(() => err.error.error))
+    );
+  }
+
+  logout(): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      return throwError(() => 'No access token found.');
+    }
+
+    return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
+      switchMap(() => {
+        // ✅ Now we remove localStorage only if logout API succeeds
+        localStorage.removeItem('access_token');
+        this.authStatus.next(false);
+
+        return this.http.post('https://localhost/ip-api/audit-logs/log-logout', {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).pipe(
+          catchError(err => {
+            console.error('Log-logout failed:', err);
+            return throwError(() => err.error.error); // Log the error but do not affect logout success
+          })
+        );
+      }),
+      catchError(err => {
+        console.error('Logout failed:', err);
+        return throwError(() => err.error.error); // If logout fails, do not remove localStorage
       })
     );
   }
 
 
-  logout(): Observable<any> {
-    const token = localStorage.getItem('access_token');
+  updateInfo(data: { name: string; email: string }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/profile/update`, data).pipe(
+      catchError(err => throwError(() => err.error.error))
+    );
+  }
 
-    if (!token) {
-      return throwError(() => new Error('No access token found.'));
-    }
-
-    return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
-      tap(() => {
-        localStorage.removeItem('access_token'); 
-        this.authStatus.next(false);
-        console.log('User successfully logged out.');
-      }),
-      switchMap(() => {
-        return this.http.post('https://localhost/ip-api/audit-logs/log-logout', {}, {
-          headers: { Authorization: `Bearer ${token}` } 
-        });
-      }),
-      tap(() => console.log('Logout event successfully logged')),
-      catchError(err => {
-        console.error('Log-logout failed:', err);
-        return throwError(() => new Error('Logout event logging failed.'));
-      })
+  changePassword(passwordData: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/profile/change-password`, passwordData).pipe(
+      catchError(err => throwError(() => err.error.error))
     );
   }
 
@@ -92,74 +102,48 @@ export class AuthService {
     return this.authStatus.asObservable();
   }
 
-  updateInfo(data: { name: string; email: string }): Observable<any> {
-    return this.http.put(`${this.apiUrl}/profile/update`, data);
-  }
-
-  changePassword(passwordData: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/profile/change-password`, passwordData);
-  }
-
   decodeToken(): any {
     const token = this.getToken();
     if (!token) return null;
-
     try {
       return jwtDecode(token);
     } catch (error) {
-      console.error('Error decoding token:', error);
       return null;
     }
   }
-  
+
   getUserEmail(): string {
     const userString = localStorage.getItem('currentUser');
-
-    if (!userString) {
-      return '';
-    }
-
+    if (!userString) return '';
     try {
       const user = JSON.parse(userString);
-      return user?.email || null;
+      return user?.email || '';
     } catch (error) {
-      console.error("Error parsing user data from localStorage", error);
       return '';
     }
   }
 
   getUserName(): string {
     const userString = localStorage.getItem('currentUser');
-
-    if (!userString) {
-      return '';
-    }
-
+    if (!userString) return '';
     try {
       const user = JSON.parse(userString);
-      return user?.name || null;
+      return user?.name || '';
     } catch (error) {
-      console.error("Error parsing user data from localStorage", error);
       return '';
     }
   }
 
   getUserId(): string {
     const userString = localStorage.getItem('currentUser');
-
-    if (!userString) {
-      return '';
-    }
-
+    if (!userString) return '';
     try {
       const user = JSON.parse(userString);
-      return user?.id || null;
+      return user?.id || '';
     } catch (error) {
-      console.error("Error parsing user data from localStorage", error);
       return '';
     }
   }
-
 
   getUserPermissions(): string[] {
     const decoded = this.decodeToken();

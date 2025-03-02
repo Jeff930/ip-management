@@ -7,7 +7,10 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from './services/auth.service';
 import { LoaderComponent } from './components/loader/loader.component';
-import { LoadingService } from './services/loading.service';
+import { LoadingService } from './services/loading.service'; 
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +25,8 @@ export class AppComponent implements OnInit {
   userName = 'Sample Username';
   userRole = 'Sample Role';
 
-  constructor(private authService: AuthService, private router: Router, private loadingService: LoadingService) { }
+  constructor(private authService: AuthService, private router: Router, private loadingService: LoadingService,
+    private snackBar: MatSnackBar, private dialog: MatDialog, ) { }
 
   ngOnInit(): void {
     this.authService.getAuthStatus().subscribe((status) => {
@@ -43,16 +47,31 @@ export class AppComponent implements OnInit {
   }
 
   logout(): void {
-    this.loadingService.show();
-    this.authService.logout().subscribe({
-      next: () => {
-        this.router.navigate(['/login']);
-        this.loadingService.hide();
-      },
-      error: (err) => { 
-        console.error('Logout error:', err);
-        this.loadingService.hide();
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400',
+      data: {
+        title: 'Confirm Logout',
+        message: `Are you sure you want to log out?`
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) { 
+        this.loadingService.show();
+        this.authService.logout().subscribe({
+          next: () => {
+            this.router.navigate(['/login']);
+            this.loadingService.hide();
+            this.snackBar.open('Signed out successfully', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
+          },
+          error: (err) => {
+            console.error('Logout error:', err);
+            this.loadingService.hide();
+            this.snackBar.open('Failed signing out user. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+          }
+        });
       }
     });
   }
+
 }

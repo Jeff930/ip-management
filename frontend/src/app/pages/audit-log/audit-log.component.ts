@@ -11,6 +11,7 @@ import { AuditService, LogData } from '../../services/audit.service';
 import { CommonModule } from '@angular/common';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { LoadingService } from '../../services/loading.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-audit-log',
@@ -37,7 +38,8 @@ export class AuditLogComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private auditService: AuditService, private loadingService: LoadingService) {}
+  constructor(private auditService: AuditService, private loadingService: LoadingService,
+    private snackBar: MatSnackBar) {}
 
   ngOnInit() {
     this.fetchAuditLogs();
@@ -51,8 +53,9 @@ export class AuditLogComponent implements OnInit, AfterViewInit {
         this.loadingService.hide();
       },
       error: (err) => {
-        console.error('Error fetching IPs', err);
+        console.error('Error fetching logs', err);
         this.loadingService.hide();
+        this.snackBar.open('Failed fetching audit logs. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
       }
     });
   }

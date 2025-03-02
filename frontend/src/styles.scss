@@ -12,6 +12,7 @@
     header-indicator-color:$white,
     header-hover-state-layer-color: $dark));
   @include mat.table-overrides((
+    row-item-container-height: 85px,
     row-item-outline-color:$gray, 
     background-color: $white, 
     header-headline-color: $primary, 
@@ -52,6 +53,10 @@ h5,
 h6,
 .heading {
   font-family: 'Manrope', sans-serif;
+}
+
+.delete-button{
+  @include mat.button-overrides((filled-container-color: $danger));
 }
 
 

@@ -9,6 +9,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service'; 
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { LoadingService } from '../../services/loading.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-profile',
@@ -22,7 +23,8 @@ export class ProfileComponent implements OnInit {
   passwordForm: FormGroup;
   userData: any = {};
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private loadingService: LoadingService) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private loadingService: LoadingService,
+    private snackBar: MatSnackBar) {
     this.userInfoForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]]
@@ -54,9 +56,10 @@ export class ProfileComponent implements OnInit {
         });
         this.loadingService.hide();
       },
-      error: (err) => {
-        console.error('Error fetching user data:', err);
+      error: (error) => {
+        console.error('Error fetching user data:', error);
         this.loadingService.hide();
+        this.snackBar.open('Failed fetching user profile. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
       }
     });
   }
@@ -78,6 +81,7 @@ export class ProfileComponent implements OnInit {
         error: (err) => {
           console.error('Error updating user info:', err);
           this.loadingService.hide();
+          this.snackBar.open('Failed updating user profile.. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
         }
       });
     }
@@ -92,8 +96,10 @@ export class ProfileComponent implements OnInit {
           this.passwordForm.reset();
           this.loadingService.hide();
         },
-        error: (err) => {console.error('Error updating password:', err);
+        error: (err) => {
+          console.error('Error updating password:', err);
           this.loadingService.hide();
+          this.snackBar.open('Failed updating password. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
         }
       });
     }

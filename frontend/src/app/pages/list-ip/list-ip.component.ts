@@ -12,6 +12,7 @@ import { IpDialogComponent } from '../../components/ip-dialog/ip-dialog.componen
 import { IpAddressService, IpData } from '../../services/ip-address.service';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { DateFormatPipe } from '../../pipes/date-format.pipe';
 
 @Component({
   selector: 'app-list-ip',
@@ -25,13 +26,14 @@ import { CommonModule } from '@angular/common';
     MatCardModule,
     MatIconModule,
     MatButtonModule,
-    CommonModule
+    CommonModule,
+    DateFormatPipe
   ],
   templateUrl: './list-ip.component.html',
   styleUrls: ['./list-ip.component.scss']
 })
 export class ListIpComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['_id', 'ip', 'addedByUserName', 'label', 'actions'];
+  displayedColumns: string[] = ['_id', 'ip', 'addedByUserName', 'label', 'createdAt', 'actions'];
   dataSource: MatTableDataSource<IpData> = new MatTableDataSource<IpData>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;

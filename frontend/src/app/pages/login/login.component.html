@@ -1,31 +1,43 @@
 <div class="d-flex justify-content-center align-items-center min-vh-100 login-page">
   <mat-card class="max-w-md p-5 shadow-lg login-card">
     <div class="text-center">
-      <mat-icon class="fs-1 w-25 h-25 text-white">security</mat-icon>
-      <h2 class="fs-3 fw-semibold text-light">IP MANAGEMENT</h2>
+      <mat-icon class="fs-1 w-25 h-25 text-primary">security</mat-icon>
+      <h2 class="fs-3 fw-semibold text-dark">IP MANAGEMENT</h2>
     </div>
 
-    <form class="mt-4">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="mt-4">
       <div class="mb-3">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Email</mat-label>
-          <input matInput placeholder="Enter your email" type="email" required [(ngModel)]="email" name="email" class="form-control">
+        <mat-form-field appearance="outline" class="w-100 login-field">
+          <mat-label>Email Address</mat-label>
+          <input matInput type="email" placeholder="Enter your email" formControlName="email">
+          <mat-error *ngIf="email?.invalid && (email?.dirty || email?.touched)">
+            <span *ngIf="email?.errors?.['required']">Email is required.</span>
+            <span *ngIf="email?.errors?.['email']">Invalid email format.</span>
+          </mat-error>
         </mat-form-field>
       </div>
 
       <div class="mb-3">
-        <mat-form-field appearance="outline" class="w-100">
+        <mat-form-field appearance="outline" class="w-100 login-field">
           <mat-label>Password</mat-label>
-          <input matInput placeholder="Enter your password" type="password" required [(ngModel)]="password"
-            name="password" class="form-control">
+          <input matInput type="password" placeholder="Enter your password" formControlName="password">
+          <mat-error *ngIf="password?.invalid && (password?.dirty || password?.touched)">
+            <span *ngIf="password?.errors?.['required']">Password is required.</span>
+            <span *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters.</span>
+          </mat-error>
         </mat-form-field>
       </div>
 
       <div class="mt-4">
         <button mat-flat-button color="primary" class="btn btn-primary w-100 py-2 fs-6 fw-semibold"
-          (click)="onSubmit()">LOGIN</button>
+          [disabled]="loginForm.invalid">
+          LOGIN
+        </button>
       </div>
-      <p *ngIf="errorMessage" class="text-danger fs-7 text-center mt-4 fw-bolder">{{ errorMessage }}</p>
+
+      <p *ngIf="loginForm.invalid" class="text-danger fs-7 text-center mt-4 fw-bolder">
+        Please fill out the form correctly.
+      </p>
     </form>
   </mat-card>
 </div>

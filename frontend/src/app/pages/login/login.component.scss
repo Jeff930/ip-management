@@ -1,4 +1,5 @@
 @use '../../../theme' as *;
+@use '@angular/material' as mat;
 
 .login-page{
   background-color: $primary;
@@ -13,8 +14,12 @@
 }
 
 .login-card{
-  background: rgba(15, 15, 15, 0.5);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   width: 35%;
+}
+
+.login-field {
+  @include mat.form-field-overrides((outlined-outline-color: $dark));
 }

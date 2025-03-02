@@ -1,17 +1,18 @@
 import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { LoadingService } from '../../services/loading.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { LoadingService } from '../../services/loading.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-login',
@@ -24,35 +25,54 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatCheckboxModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    ReactiveFormsModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
 
-  email: string = '';
-  password: string = '';
-  errorMessage: string = '';
+  loginForm: FormGroup;
 
-  constructor(private authService: AuthService, private router: Router, private loadingService: LoadingService,
-    private snackBar: MatSnackBar) { }
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router,
+    private loadingService: LoadingService,
+    private snackBar: MatSnackBar
+  ) {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],  
+      password: ['', [Validators.required, Validators.minLength(6)]] 
+    });
+  }
 
   onSubmit(): void {
-    this.loadingService.show();
-    this.errorMessage = '';
+    if (this.loginForm.invalid) {
+      return;
+    }
 
-    this.authService.login({ email: this.email, password: this.password }).subscribe({
+    this.loadingService.show();
+    const { email, password } = this.loginForm.value;
+
+    this.authService.login({ email, password }).subscribe({
       next: () => {
         this.loadingService.hide();
         this.router.navigate(['/list-ip']);
       },
       error: (error) => {
         this.loadingService.hide();
-        this.errorMessage = error || 'An error occurred. Please try again.';
-        this.snackBar.open(this.errorMessage, 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+        const errorMessage = error || 'An error occurred. Please try again.';
+        this.snackBar.open(errorMessage, 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
       }
     });
   }
 
+  get email() {
+    return this.loginForm.get('email');
+  }
+
+  get password() {
+    return this.loginForm.get('password');
+  }
 }

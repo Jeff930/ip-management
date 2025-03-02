@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, switchMap, catchError, tap, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import { environment } from '../../environment/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'https://localhost/auth-api';
+  private apiUrl = environment.apiAuthUrl;
   private authStatus = new BehaviorSubject<boolean>(this.getToken() ? true : false);
 
   constructor(private http: HttpClient) { }

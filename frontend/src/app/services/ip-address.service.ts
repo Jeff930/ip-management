@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environment/environment';
 
 export interface IpData {
   _id: string;
@@ -19,7 +20,7 @@ export interface IpData {
   providedIn: 'root',
 })
 export class IpAddressService {
-  private apiUrl = 'https://localhost/ip-api/ips'; 
+  private apiUrl = environment.apiIpUrl; 
 
   constructor(private http: HttpClient) { }
 

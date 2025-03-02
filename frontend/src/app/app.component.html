@@ -1,7 +1,7 @@
 <div class="wrapper">
-  <div class="sidenav-container" *ngIf="!isLoginPage">
+  <div class="sidenav-container" >
     <mat-sidenav-container class="h-100">
-      <mat-sidenav mode="side" opened class="side-nav">
+      <mat-sidenav mode="side" opened class="side-nav" *ngIf="!isLoginPage">
 
         <div class="company-header d-flex align-items-center p-3">
           <mat-icon class="fs-3 text-white me-2 h-25">security</mat-icon>
@@ -44,9 +44,5 @@
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>
-  </div>
-
-  <div ngElse>
-    <router-outlet></router-outlet>
   </div>
 </div>

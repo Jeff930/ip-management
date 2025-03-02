@@ -26,16 +26,8 @@ export class AppComponent implements OnInit {
     this.authService.getAuthStatus().subscribe((status) => {
       this.isLoginPage = !status;
       if (status) {
-        this.authService.getUser().subscribe({
-          next: (user) => {
-            console.log("user",user);
-            this.userName = user.name;
-            this.userRole = user.role.name;
-          },
-          error: (err) => {
-            console.error('Error fetching user data:', err);
-          }
-        });
+        this.userName = this.authService.getUserName();
+        this.userRole = this.authService.getUserEmail();
       }
     });
   }

@@ -17,7 +17,7 @@ export class AuthGuard implements CanActivate {
 
     const requiredPermission = route.data['permission'];
     const userPermissions = this.authService.getUserPermissions();
-    console.log(userPermissions);
+    
     if (requiredPermission && !userPermissions.includes(requiredPermission)) {
       this.router.navigate(['/not-found']);
       return false;

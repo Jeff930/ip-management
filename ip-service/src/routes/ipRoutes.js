@@ -15,9 +15,6 @@ const checkPermission = (permission) => (req, res, next) => {
   next();
 };
 
-/**
- * Get all IPs (No permission check required)
- */
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const ips = await IP.find().sort({ createdAt: -1 });
@@ -27,9 +24,6 @@ router.get("/", authenticateToken, async (req, res) => {
   }
 });
 
-/**
- * Add a new IP (Requires `create-ip` permission)
- */
 router.post("/", authenticateToken, checkPermission("create-ip"), async (req, res) => {
   const { ip, comment, label } = req.body;
   const addedByUserId = req.user.sub;
@@ -43,17 +37,9 @@ router.post("/", authenticateToken, checkPermission("create-ip"), async (req, re
   try {
     const newIP = await IP.create({ ip, comment, label, addedByUserId, addedByUserName, addedByUserEmail });
 
-    console.log("for logs", {
-      userId: addedByUserId,
-      sessionId: JSON.stringify(req.user.jti),
-      action: "create",
-      target: `IP: ${ip}`,
-      changes: { ip, comment, label }
-    })
-
     await logAction({
       actorId: addedByUserId,
-      sessionId: req.user.jti,
+      sessionId: req.user.session_id,
       actorName: addedByUserName,
       action: "create",
       targetId: newIP._id,
@@ -73,15 +59,10 @@ router.post("/", authenticateToken, checkPermission("create-ip"), async (req, re
       return res.status(500).json({ error: "Database error: " + error.message });
     }
 
-    console.error("Error adding IP:", error);
     res.status(500).json({ error: "An unexpected error occurred while adding IP" });
   }
 });
 
-
-/**
- * Update an IP (Requires `edit-any-ip` permission)
- */
 router.put("/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { ip, comment, label } = req.body;
@@ -106,7 +87,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
     
     await logAction({
       actorId: updatedByUserId,
-      sessionId: req.user.jti,
+      sessionId: req.user.session_id,
       actorName: updatedByUserName,
       action: "update",
       targetId: id,
@@ -128,14 +109,10 @@ router.put("/:id", authenticateToken, async (req, res) => {
       return res.status(400).json({ error: "Invalid IP ID format." });
     }
 
-    console.error("Error updating IP:", error);
     res.status(500).json({ error: "An unexpected error occurred while updating IP" });
   }
 });
 
-/**
- * Delete an IP (Requires `delete-ip` permission)
- */
 router.delete("/:id", authenticateToken, checkPermission("delete-ip"), async (req, res) => {
   const { id } = req.params;
   const deletedByUserId = req.user.sub;
@@ -149,7 +126,7 @@ router.delete("/:id", authenticateToken, checkPermission("delete-ip"), async (re
 
     await logAction({
       actorId: deletedByUserId,
-      sessionId: req.user.jti,
+      sessionId: req.user.session_id,
       actorName: deletedByUserName,
       action: "delete",
       targetId: id,

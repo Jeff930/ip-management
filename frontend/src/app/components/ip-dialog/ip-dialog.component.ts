@@ -8,14 +8,14 @@ import {
   MatDialogTitle,
   MAT_DIALOG_DATA
 } from '@angular/material/dialog';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, FormsModule, ReactiveFormsModule  } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
+import { Address4, Address6 } from 'ip-address';
 
 export interface IpDialogData {
   mode: 'add' | 'edit' | 'view';
@@ -46,7 +46,7 @@ export class IpDialogComponent {
     this.dialogTitle = data.mode === 'add' ? 'Add IP Address' : data.mode === 'edit' ? 'Edit IP Address' : 'View IP Address';
 
     this.ipForm = this.fb.group({
-      ip: [{ value: data.ipData?.ip || '', disabled: !this.canEditAllFields() }, [Validators.required]],
+      ip: [{ value: data.ipData?.ip || '', disabled: !this.canEditAllFields() }, [Validators.required, this.validateIPAddress.bind(this)]],
       label: [data.ipData?.label || ''],
       comment: [{ value: data.ipData?.comment || '', disabled: !this.canEditAllFields() }],
     });
@@ -54,6 +54,16 @@ export class IpDialogComponent {
     if (this.isViewMode) {
       this.ipForm.disable();
     }
+  }
+
+  validateIPAddress(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (!value) return null; 
+
+    const isValidIPv4 = Address4.isValid(value);
+    const isValidIPv6 = Address6.isValid(value);
+
+    return isValidIPv4 || isValidIPv6 ? null : { invalidIP: true };
   }
 
   onCancel(): void {

@@ -3,16 +3,15 @@
 <mat-dialog-content class="dialog-content pt-2">
   <ng-container *ngIf="!isViewMode; else viewTemplate">
     <form [formGroup]="ipForm">
-      <div class="d-flex gap-3">
-        <mat-form-field appearance="outline" class="flex-grow-1">
-          <mat-label class="fs-7">IP Address</mat-label>
-          <input matInput formControlName="ip" required />
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="flex-grow-1">
-          <mat-label class="fs-7">Label</mat-label>
-          <input matInput formControlName="label" required />
-        </mat-form-field>
-      </div>
+      <mat-form-field appearance="outline" class="mb-3 w-100">
+        <mat-label class="fs-7">IP Address</mat-label>
+        <mat-hint>Address must be a valid IPv4 or IPv6 format.</mat-hint>
+        <input matInput formControlName="ip" required />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label class="fs-7">Label</mat-label>
+        <input matInput formControlName="label" required />
+      </mat-form-field>
       <mat-form-field appearance="outline" class="w-100">
         <mat-label class="fs-7">Comments</mat-label>
         <textarea matInput formControlName="comment"></textarea>

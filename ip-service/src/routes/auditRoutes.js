@@ -35,7 +35,7 @@ router.post("/log-login", authenticateToken, async (req, res) => {
 
     await logAction({
       actorId: LoginUserId,
-      sessionId: req.user.jti,
+      sessionId: req.user.session_id,
       actorName: LoginUserName,
       action: "Login",
       targetId: LoginUserId,
@@ -57,7 +57,7 @@ router.post("/log-logout", authenticateToken, async (req, res) => {
 
     await logAction({
       actorId: LogoutUserId,
-      sessionId: req.user.jti,
+      sessionId: req.user.session_id,
       actorName: LogoutUserName,
       action: "Logout",
       targetId: LogoutUserId,

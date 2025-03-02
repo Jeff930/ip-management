@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AuditService, LogData } from '../../services/audit.service';
 import { CommonModule } from '@angular/common';
+import { DateFormatPipe } from '../../pipes/date-format.pipe';
 
 @Component({
   selector: 'app-audit-log',
@@ -22,7 +23,8 @@ import { CommonModule } from '@angular/common';
     MatCardModule,
     MatIconModule,
     MatButtonModule,
-    CommonModule
+    CommonModule,
+    DateFormatPipe
   ],
   templateUrl: './audit-log.component.html',
   styleUrl: './audit-log.component.scss',

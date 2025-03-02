@@ -85,7 +85,7 @@
           <p>Created At</p>
         </div>
         <div class="fs-7 fw-semibold text-break text-wrap">
-          <p>{{ data.userData.created_at ? data.userData.created_at : 'N/A' }}</p>
+          <p>{{ data.userData.created_at | dateFormat }}</p>
         </div>
       </div>
       <div class="d-flex">
@@ -93,7 +93,7 @@
           <p>Updated At</p>
         </div>
         <div class="fs-7 fw-semibold text-break text-wrap">
-          <p>{{ data.userData.updated_at ? data.userData.updated_at : 'N/A' }}</p>
+          <p>{{ data.userData.updated_at | dateFormat }}</p>
         </div>
       </div>
       <div class="d-flex">

@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { RoleData } from '../../services/user.service';
 import { CommonModule } from '@angular/common';
+import { DateFormatPipe } from '../../pipes/date-format.pipe';
 
 import {
   MatDialog,
@@ -40,7 +41,8 @@ export interface UserDialogData {
     MatDialogActions,
     MatDialogClose,
     MatDialogContent,
-    MatDialogTitle
+    MatDialogTitle,
+    DateFormatPipe
   ]
 })
 export class UserDialogComponent {

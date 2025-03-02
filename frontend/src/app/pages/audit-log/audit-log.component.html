@@ -16,7 +16,7 @@
 
           <ng-container matColumnDef="createdAt">
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="fw-semibold text-primary"> Created At </th>
-            <td mat-cell *matCellDef="let row"> {{ row.createdAt }} </td>
+            <td mat-cell *matCellDef="let row"> {{ row.createdAt| dateFormat }} </td>
           </ng-container>
 
           <ng-container matColumnDef="session">

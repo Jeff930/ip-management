@@ -30,16 +30,6 @@ export const routes: Routes = [
         data: { permission: 'view-users' }
       },
       {
-        path: 'manage-ip',
-        loadComponent: () =>
-          import('./pages/manage-ip/manage-ip.component').then((m) => m.ManageIpComponent)
-      },
-      {
-        path: 'manage-user',
-        loadComponent: () =>
-          import('./pages/manage-user/manage-user.component').then((m) => m.ManageUserComponent)
-      },
-      {
         path: 'audit-log',
         loadComponent: () =>
           import('./pages/audit-log/audit-log.component').then((m) => m.AuditLogComponent),

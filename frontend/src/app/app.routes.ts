@@ -1,11 +1,13 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
+import { LoginGuard } from './guards/login.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./pages/login/login.component').then((m) => m.LoginComponent)
+      import('./pages/login/login.component').then((m) => m.LoginComponent),
+    canActivate: [LoginGuard]
   },
   {
     path: '',
@@ -25,7 +27,6 @@ export const routes: Routes = [
         path: 'list-user',
         loadComponent: () =>
           import('./pages/list-user/list-user.component').then((m) => m.ListUserComponent),
-        canActivate: [AuthGuard],
         data: { permission: 'view-users' }
       },
       {
@@ -42,7 +43,6 @@ export const routes: Routes = [
         path: 'audit-log',
         loadComponent: () =>
           import('./pages/audit-log/audit-log.component').then((m) => m.AuditLogComponent),
-        canActivate: [AuthGuard],
         data: { permission: 'view-logs' }
       }
     ]

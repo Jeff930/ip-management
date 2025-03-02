@@ -2,17 +2,19 @@ const express = require("express");
 const IP = require("../models/IP");
 const { logAction } = require("../services/auditLogService");
 const authenticateToken = require("../middlewares/authenticateToken");
+const { Address4, Address6 } = require("ip-address");
 
 const router = express.Router();
 
-/**
- * Middleware to check user permissions
- */
 const checkPermission = (permission) => (req, res, next) => {
   if (!req.user.permissions.includes(permission)) {
     return res.status(403).json({ error: "Forbidden: Insufficient permissions" });
   }
   next();
+};
+
+const isValidIP = (ip) => {
+  return Address4.isValid(ip) || Address6.isValid(ip);
 };
 
 router.get("/", authenticateToken, async (req, res) => {
@@ -32,6 +34,10 @@ router.post("/", authenticateToken, checkPermission("create-ip"), async (req, re
 
   if (!ip || !label) {
     return res.status(400).json({ error: "IP address and label are required." });
+  }
+
+  if (!isValidIP(ip)) {
+    return res.status(400).json({ error: "Invalid IP address format." });
   }
 
   try {
@@ -75,6 +81,10 @@ router.put("/:id", authenticateToken, async (req, res) => {
     const existingIP = await IP.findById(id);
     if (!existingIP) {
       return res.status(404).json({ error: "IP not found" });
+    }
+
+    if (!isValidIP(ip)) {
+      return res.status(400).json({ error: "Invalid IP address format." });
     }
 
     let updateData = { label };

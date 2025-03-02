@@ -11,6 +11,7 @@ import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingService } from '../../services/loading.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-login',
@@ -34,7 +35,8 @@ export class LoginComponent {
   password: string = '';
   errorMessage: string = '';
 
-  constructor(private authService: AuthService, private router: Router, private loadingService: LoadingService) { }
+  constructor(private authService: AuthService, private router: Router, private loadingService: LoadingService,
+    private snackBar: MatSnackBar) { }
 
   onSubmit(): void {
     this.loadingService.show();
@@ -45,9 +47,10 @@ export class LoginComponent {
         this.loadingService.hide();
         this.router.navigate(['/list-ip']);
       },
-      error: () => {
+      error: (error) => {
         this.loadingService.hide();
-        this.errorMessage = 'Invalid credentials';
+        this.errorMessage = error || 'An error occurred. Please try again.';
+        this.snackBar.open(this.errorMessage, 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
       }
     });
   }

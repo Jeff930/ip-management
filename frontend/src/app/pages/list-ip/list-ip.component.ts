@@ -14,6 +14,8 @@ import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { LoadingService } from '../../services/loading.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-list-ip',
@@ -40,7 +42,8 @@ export class ListIpComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private dialog: MatDialog, private ipService: IpAddressService, private authService: AuthService, private loadingService: LoadingService) { }
+  constructor(private dialog: MatDialog, private ipService: IpAddressService, private authService: AuthService, private loadingService: LoadingService,
+    private snackBar: MatSnackBar) { }
   canDeleteIP = false;
 
   ngOnInit(): void {
@@ -63,6 +66,7 @@ export class ListIpComponent implements OnInit, AfterViewInit {
       error: (err) => {
         console.error('Error fetching IPs', err);
         this.loadingService.hide();
+        this.snackBar.open('Failed fetching IP Addresses. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
       }
     });
   }
@@ -89,10 +93,12 @@ export class ListIpComponent implements OnInit, AfterViewInit {
           next: (newIp) => {
             this.dataSource.data = [...this.dataSource.data, newIp];
             this.loadingService.hide();
+            this.snackBar.open('Added IP Address successfully', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
           },
           error: (err) => {
             console.error('Error adding IP', err);
             this.loadingService.hide();
+            this.snackBar.open('Failed adding IP Address. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
           }
         });
       }
@@ -116,10 +122,12 @@ export class ListIpComponent implements OnInit, AfterViewInit {
               this.dataSource.data = [...this.dataSource.data]; 
             }
             this.loadingService.hide();
+            this.snackBar.open('Updated IP Address successfully', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
           },
           error: (err) => {
             console.error('Error updating IP', err);
             this.loadingService.hide();
+            this.snackBar.open('Failed updating IP Address. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
           }
         });
       }
@@ -134,19 +142,31 @@ export class ListIpComponent implements OnInit, AfterViewInit {
   }
 
   deleteData(row: IpData): void {
-    if (confirm('Are you sure you want to delete this IP?')) {
-      this.loadingService.show();
-      this.ipService.deleteIpAddress(row._id).subscribe({
-        next: () => {
-          this.dataSource.data = this.dataSource.data.filter(item => item._id !== row._id);
-          this.loadingService.hide();
-        },
-        error: (err) => {
-          console.error('Error deleting IP', err);
-          this.loadingService.hide();
-        }
-      });
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete ${row.ip}? This action cannot be undone.`
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) { 
+        this.loadingService.show();
+        this.ipService.deleteIpAddress(row._id).subscribe({
+          next: () => {
+            this.dataSource.data = this.dataSource.data.filter(item => item._id !== row._id);
+            this.loadingService.hide();
+            this.snackBar.open('Deleted IP Address successfully', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
+          },
+          error: (err) => {
+            console.error('Error deleting IP', err);
+            this.loadingService.hide();
+            this.snackBar.open('Failed deleting IP Address. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+          }
+        });
+      }
+    });
   }
 
   checkDeletePermission() {

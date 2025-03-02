@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environment/environment';
 
 export interface UserData {
   id: string;
@@ -21,7 +22,7 @@ export interface RoleData {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'https://localhost/auth-api/users';
+  private apiUrl = environment.apiUserUrl;
 
   constructor(private http: HttpClient) { }
 

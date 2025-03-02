@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environment/environment';
 
 export interface LogData {
   _id: string;
@@ -21,7 +22,7 @@ export interface LogData {
   providedIn: 'root',
 })
 export class AuditService {
-  private apiUrl = 'https://localhost/ip-api/audit-logs';
+  private apiUrl = environment.apiAuditLogUrl;
 
   constructor(private http: HttpClient) { }
 

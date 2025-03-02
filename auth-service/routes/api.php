@@ -11,7 +11,6 @@ Route::get('/check', function () {
     return response()->json(['message' => 'Auth API is working!']);
 });
 
-Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/refresh', [AuthController::class, 'refresh']);
 Route::middleware('jwt')->group(function () {

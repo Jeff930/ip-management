@@ -12,6 +12,7 @@ import { UserDialogComponent } from '../../components/user-dialog/user-dialog.co
 import { UserService, UserData, RoleData } from '../../services/user.service';
 import { forkJoin } from 'rxjs';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
+import { LoadingService } from '../../services/loading.service';
 
 @Component({
   selector: 'app-list-user',
@@ -38,7 +39,7 @@ export class ListUserComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private dialog: MatDialog, private userService: UserService) { }
+  constructor(private dialog: MatDialog, private userService: UserService, private loadingService: LoadingService) { }
 
   ngOnInit(): void {
     this.loadData();
@@ -50,6 +51,7 @@ export class ListUserComponent implements OnInit, AfterViewInit {
   }
 
   loadData(): void {
+    this.loadingService.show();
     forkJoin({
       users: this.userService.getUsers(),
       roles: this.userService.getRoles()
@@ -57,8 +59,12 @@ export class ListUserComponent implements OnInit, AfterViewInit {
       next: ({ users, roles }) => {
         this.dataSource.data = users;
         this.roles = roles;
+        this.loadingService.hide();
       },
-      error: (err) => console.error('Error loading data', err)
+      error: (err) => {
+        console.error('Error loading data', err);
+        this.loadingService.hide();
+      }
     });
   }
 
@@ -78,13 +84,17 @@ export class ListUserComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log(result);
+        this.loadingService.show();
         this.userService.createUser(result).subscribe({
           next: (newUser) => {
             this.dataSource.data.push(newUser);
             this.dataSource.data = [...this.dataSource.data];
+            this.loadingService.hide();
           },
-          error: (err) => console.error('Error adding user', err)
+          error: (err) => {
+            console.error('Error adding user', err);
+            this.loadingService.hide();
+          }
         });
       }
     });
@@ -98,6 +108,7 @@ export class ListUserComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        this.loadingService.show();
         this.userService.updateUser(row.id, result).subscribe({
           next: (response: any) => {
             const updatedUser: UserData = response.user;
@@ -106,8 +117,12 @@ export class ListUserComponent implements OnInit, AfterViewInit {
               this.dataSource.data[index] = updatedUser;
               this.dataSource.data = [...this.dataSource.data];
             }
+            this.loadingService.hide();
           },
-          error: (err) => console.error('Error updating user', err)
+          error: (err) => {
+            console.error('Error updating user', err);
+            this.loadingService.hide();
+          }
         });
       }
     });
@@ -122,11 +137,16 @@ export class ListUserComponent implements OnInit, AfterViewInit {
 
   deleteData(row: UserData): void {
     if (confirm('Are you sure you want to delete this user?')) {
+      this.loadingService.show();
       this.userService.deleteUser(row.id).subscribe({
         next: () => {
           this.dataSource.data = this.dataSource.data.filter(item => item.id !== row.id);
+          this.loadingService.hide();
         },
-        error: (err) => console.error('Error deleting user', err)
+        error: (err) => {
+          console.error('Error deleting user', err);
+          this.loadingService.hide();
+        }
       });
     }
   }
@@ -138,13 +158,17 @@ export class ListUserComponent implements OnInit, AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log(result);
+      this.loadingService.show();
       if (result && result.password) {
         this.userService.updatePassword(row.id, result).subscribe({
           next: (response: any) => {
             console.log('Password updated successfully for user:', row.id, response);
+            this.loadingService.hide();
           },
-          error: (err) => console.error('Error updating password', err)
+          error: (err) => { 
+            console.error('Error updating password', err);
+            this.loadingService.hide();
+          }
         });
       }
     });

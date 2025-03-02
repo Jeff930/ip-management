@@ -13,6 +13,7 @@ import { IpAddressService, IpData } from '../../services/ip-address.service';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
+import { LoadingService } from '../../services/loading.service';
 
 @Component({
   selector: 'app-list-ip',
@@ -39,7 +40,7 @@ export class ListIpComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private dialog: MatDialog, private ipService: IpAddressService, private authService: AuthService) { }
+  constructor(private dialog: MatDialog, private ipService: IpAddressService, private authService: AuthService, private loadingService: LoadingService) { }
   canDeleteIP = false;
 
   ngOnInit(): void {
@@ -53,11 +54,16 @@ export class ListIpComponent implements OnInit, AfterViewInit {
   }
 
   loadIpAddresses(): void {
+    this.loadingService.show();
     this.ipService.getIpAddresses().subscribe({
       next: (data) => {
         this.dataSource.data = data;
+        this.loadingService.hide();
       },
-      error: (err) => console.error('Error fetching IPs', err)
+      error: (err) => {
+        console.error('Error fetching IPs', err);
+        this.loadingService.hide();
+      }
     });
   }
 
@@ -78,11 +84,16 @@ export class ListIpComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        this.loadingService.show();
         this.ipService.addIpAddress(result).subscribe({
           next: (newIp) => {
             this.dataSource.data = [...this.dataSource.data, newIp];
+            this.loadingService.hide();
           },
-          error: (err) => console.error('Error adding IP', err)
+          error: (err) => {
+            console.error('Error adding IP', err);
+            this.loadingService.hide();
+          }
         });
       }
     });
@@ -96,6 +107,7 @@ export class ListIpComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        this.loadingService.show();
         this.ipService.updateIpAddress(row._id, result).subscribe({
           next: (updatedIp) => {
             const index = this.dataSource.data.findIndex(item => item._id === row._id);
@@ -103,8 +115,12 @@ export class ListIpComponent implements OnInit, AfterViewInit {
               this.dataSource.data[index] = updatedIp;
               this.dataSource.data = [...this.dataSource.data]; 
             }
+            this.loadingService.hide();
           },
-          error: (err) => console.error('Error updating IP', err)
+          error: (err) => {
+            console.error('Error updating IP', err);
+            this.loadingService.hide();
+          }
         });
       }
     });
@@ -119,11 +135,16 @@ export class ListIpComponent implements OnInit, AfterViewInit {
 
   deleteData(row: IpData): void {
     if (confirm('Are you sure you want to delete this IP?')) {
+      this.loadingService.show();
       this.ipService.deleteIpAddress(row._id).subscribe({
         next: () => {
           this.dataSource.data = this.dataSource.data.filter(item => item._id !== row._id);
+          this.loadingService.hide();
         },
-        error: (err) => console.error('Error deleting IP', err)
+        error: (err) => {
+          console.error('Error deleting IP', err);
+          this.loadingService.hide();
+        }
       });
     }
   }

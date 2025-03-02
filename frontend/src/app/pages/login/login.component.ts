@@ -9,6 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { LoadingService } from '../../services/loading.service';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +22,8 @@ import { Router } from '@angular/router';
     MatInputModule,
     MatCheckboxModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
@@ -31,13 +34,22 @@ export class LoginComponent {
   password: string = '';
   errorMessage: string = '';
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router, private loadingService: LoadingService) { }
 
   onSubmit(): void {
+    this.loadingService.show();
+    this.errorMessage = '';
+
     this.authService.login({ email: this.email, password: this.password }).subscribe({
-      next: () => this.router.navigate(['/list-ip']),
-      error: () => this.errorMessage = 'Invalid credentials'
+      next: () => {
+        this.loadingService.hide();
+        this.router.navigate(['/list-ip']);
+      },
+      error: () => {
+        this.loadingService.hide();
+        this.errorMessage = 'Invalid credentials';
+      }
     });
-  }  
+  }
 
 }

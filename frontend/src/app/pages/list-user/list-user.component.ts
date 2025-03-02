@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { UserDialogComponent } from '../../components/user-dialog/user-dialog.component';
 import { UserService, UserData, RoleData } from '../../services/user.service';
 import { forkJoin } from 'rxjs';
+import { DateFormatPipe } from '../../pipes/date-format.pipe';
 
 @Component({
   selector: 'app-list-user',
@@ -23,13 +24,14 @@ import { forkJoin } from 'rxjs';
     MatPaginatorModule,
     MatCardModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    DateFormatPipe
   ],
   templateUrl: './list-user.component.html',
   styleUrls: ['./list-user.component.scss']
 })
 export class ListUserComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['id', 'name', 'email', 'role', 'actions'];
+  displayedColumns: string[] = ['id', 'name', 'email', 'role', 'createdAt','actions'];
   dataSource: MatTableDataSource<UserData> = new MatTableDataSource<UserData>();
   roles: RoleData[] = [];
 

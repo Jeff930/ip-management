@@ -37,16 +37,16 @@ router.post("/log-login", authenticateToken, async (req, res) => {
       actorId: LoginUserId,
       sessionId: req.user.session_id,
       actorName: LoginUserName,
-      action: "Login",
+      action: "LOGIN",
       targetId: LoginUserId,
-      targetType: "User",
+      targetType: "USER",
       target: "SELF",
     });
 
     res.json({message: "success" });
   } catch (error) {
-    console.error("❌ Failed to fetch logs:", error);
-    res.status(500).json({ error: "Failed to fetch logs", details: error.message });
+    console.error("❌ Failed to log login event:", error);
+    res.status(500).json({ error: "Failed to log login event.", details: error.message });
   }
 });
 
@@ -59,16 +59,16 @@ router.post("/log-logout", authenticateToken, async (req, res) => {
       actorId: LogoutUserId,
       sessionId: req.user.session_id,
       actorName: LogoutUserName,
-      action: "Logout",
+      action: "LOGOUT",
       targetId: LogoutUserId,
-      targetType: "User",
+      targetType: "USER",
       target: "SELF",
     });
 
     res.json({ message: "success" });
   } catch (error) {
-    console.error("❌ Failed to fetch logs:", error);
-    res.status(500).json({ error: "Failed to fetch logs", details: error.message });
+    console.error("❌ Failed to log logout event:", error);
+    res.status(500).json({ error: "Failed to log logout event:", details: error.message });
   }
 });
 

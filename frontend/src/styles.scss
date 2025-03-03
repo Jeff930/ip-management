@@ -28,13 +28,28 @@
     outlined-outline-color: $gray));
 }
 
-.fs-7{
-  font-size:0.875rem;
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.form-control:focus{
-  background-color: transparent;
-  box-shadow:none;
+::-webkit-scrollbar-track {
+  background: $light-gray;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $gray;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: $primary;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: $gray $light-gray;
 }
 
 a{
@@ -53,6 +68,23 @@ h5,
 h6,
 .heading {
   font-family: 'Manrope', sans-serif;
+}
+
+.fs-7 {
+  font-size: 0.875rem;
+}
+
+.form-control:focus {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+mat-card-content {
+  overflow-x:auto;
+}
+
+.mat-mdc-header-cell, .mat-mdc-cell {
+  min-width: 250px;
 }
 
 .delete-button{

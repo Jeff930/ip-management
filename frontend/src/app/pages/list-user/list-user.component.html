@@ -7,7 +7,7 @@
   </div>
 
   <mat-card appearance="raised">
-    <mat-card-content>
+    <mat-card-content class="py-4 px-0 mx-3 my-0">
       <mat-form-field appearance="outline" class="search-field">
         <mat-label class="fs-7">Search</mat-label>
         <input matInput (keyup)="applyFilter($event)" placeholder="Search by name or email" #input>
@@ -32,12 +32,12 @@
             <td mat-cell *matCellDef="let row"> {{ row.email }} </td>
           </ng-container>
 
-          <ng-container matColumnDef="role">
+          <ng-container matColumnDef="role_name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Role </th>
             <td mat-cell *matCellDef="let row"> {{ row.role_name }} </td>
           </ng-container>
 
-          <ng-container matColumnDef="createdAt">
+          <ng-container matColumnDef="created_at">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Created At</th>
             <td mat-cell *matCellDef="let row"> {{ row.created_at | dateFormat }} </td>
           </ng-container>

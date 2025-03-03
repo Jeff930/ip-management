@@ -15,7 +15,7 @@ class UserController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        return User::get()->append('role_name');
+        return User::orderBy('id', 'desc')->get()->append('role_name');
     }
 
     public function store(Request $request)

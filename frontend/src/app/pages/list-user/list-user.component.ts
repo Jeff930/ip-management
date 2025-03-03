@@ -34,7 +34,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
   styleUrls: ['./list-user.component.scss']
 })
 export class ListUserComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['id', 'name', 'email', 'role', 'createdAt','actions'];
+  displayedColumns: string[] = ['id', 'name', 'email', 'role_name', 'created_at','actions'];
   dataSource: MatTableDataSource<UserData> = new MatTableDataSource<UserData>();
   roles: RoleData[] = [];
 
@@ -91,7 +91,7 @@ export class ListUserComponent implements OnInit, AfterViewInit {
         this.loadingService.show();
         this.userService.createUser(result).subscribe({
           next: (newUser) => {
-            this.dataSource.data.push(newUser);
+            this.dataSource.data.unshift(newUser);
             this.dataSource.data = [...this.dataSource.data];
             this.loadingService.hide();
              this.snackBar.open('Added user successfully', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });

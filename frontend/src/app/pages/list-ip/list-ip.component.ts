@@ -91,7 +91,8 @@ export class ListIpComponent implements OnInit, AfterViewInit {
         this.loadingService.show();
         this.ipService.addIpAddress(result).subscribe({
           next: (newIp) => {
-            this.dataSource.data = [...this.dataSource.data, newIp];
+            this.dataSource.data.unshift(newIp);
+            this.dataSource.data = [...this.dataSource.data]; 
             this.loadingService.hide();
             this.snackBar.open('Added IP Address successfully', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
           },

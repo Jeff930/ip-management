@@ -16,6 +16,7 @@ export interface LogData {
   updatedAt: string;
   changes?: object;
   __v: number;
+  [key: string]: any;
 }
 
 @Injectable({

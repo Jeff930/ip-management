@@ -47,9 +47,9 @@ router.post("/", authenticateToken, checkPermission("create-ip"), async (req, re
       actorId: addedByUserId,
       sessionId: req.user.session_id,
       actorName: addedByUserName,
-      action: "create",
+      action: "CREATE",
       targetId: newIP._id,
-      targetType: "IP Address",
+      targetType: "IP ADDRESS",
       target: newIP.ip,
       changes: { ip, comment, label }
     });
@@ -99,9 +99,9 @@ router.put("/:id", authenticateToken, async (req, res) => {
       actorId: updatedByUserId,
       sessionId: req.user.session_id,
       actorName: updatedByUserName,
-      action: "update",
+      action: "UPDATE",
       targetId: id,
-      targetType: "IP Address",
+      targetType: "IP ADDRESS",
       target: existingIP.ip,
       changes: { ip, comment, label }
     });
@@ -138,9 +138,9 @@ router.delete("/:id", authenticateToken, checkPermission("delete-ip"), async (re
       actorId: deletedByUserId,
       sessionId: req.user.session_id,
       actorName: deletedByUserName,
-      action: "delete",
+      action: "DELETE",
       targetId: id,
-      targetType: "IP Address",
+      targetType: "IP ADDRESS",
       target: deletedIP.ip
     });
 

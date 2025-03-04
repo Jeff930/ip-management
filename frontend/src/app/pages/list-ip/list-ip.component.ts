@@ -65,8 +65,13 @@ export class ListIpComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         console.error('Error fetching IPs', err);
+
         this.loadingService.hide();
-        this.snackBar.open('Failed fetching IP Addresses. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+        if (err =='Token refresh failed'){
+          this.snackBar.open('Token expired. Please login again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+        }else{
+          this.snackBar.open('Failed fetching IP Addresses. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+        }
       }
     });
   }
@@ -99,7 +104,11 @@ export class ListIpComponent implements OnInit, AfterViewInit {
           error: (err) => {
             console.error('Error adding IP', err);
             this.loadingService.hide();
-            this.snackBar.open('Failed adding IP Address. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            if (err == 'Token refresh failed') {
+              this.snackBar.open('Token expired. Please login again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            } else {
+              this.snackBar.open('Failed adding IP Address. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            }
           }
         });
       }
@@ -128,7 +137,11 @@ export class ListIpComponent implements OnInit, AfterViewInit {
           error: (err) => {
             console.error('Error updating IP', err);
             this.loadingService.hide();
-            this.snackBar.open('Failed updating IP Address. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            if (err == 'Token refresh failed') {
+              this.snackBar.open('Token expired. Please login again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            } else {
+              this.snackBar.open('Failed updating IP Address. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            }
           }
         });
       }
@@ -163,7 +176,11 @@ export class ListIpComponent implements OnInit, AfterViewInit {
           error: (err) => {
             console.error('Error deleting IP', err);
             this.loadingService.hide();
-            this.snackBar.open('Failed deleting IP Address. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            if (err == 'Token refresh failed') {
+              this.snackBar.open('Token expired. Please login again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            } else {
+              this.snackBar.open('Failed deleting IP Address. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            }
           }
         });
       }

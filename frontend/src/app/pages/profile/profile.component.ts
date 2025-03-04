@@ -81,7 +81,11 @@ export class ProfileComponent implements OnInit {
         error: (err) => {
           console.error('Error updating user info:', err);
           this.loadingService.hide();
-          this.snackBar.open('Failed updating user profile.. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+          if (err == 'Token refresh failed') {
+            this.snackBar.open('Token expired. Please login again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+          } else {
+            this.snackBar.open('Failed updating user profile.. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+          }
         }
       });
     }
@@ -99,7 +103,11 @@ export class ProfileComponent implements OnInit {
         error: (err) => {
           console.error('Error updating password:', err);
           this.loadingService.hide();
-          this.snackBar.open('Failed updating password. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+          if (err == 'Token refresh failed') {
+            this.snackBar.open('Token expired. Please login again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+          } else {
+            this.snackBar.open('Failed updating password. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+          }
         }
       });
     }

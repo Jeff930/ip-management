@@ -99,7 +99,11 @@ export class ListUserComponent implements OnInit, AfterViewInit {
           error: (err) => {
             console.error('Error adding user', err);
             this.loadingService.hide();
-            this.snackBar.open('Failed adding new user. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            if (err == 'Token refresh failed') {
+              this.snackBar.open('Token expired. Please login again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            } else {
+              this.snackBar.open('Failed adding new user. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            }
           }
         });
       }
@@ -129,7 +133,11 @@ export class ListUserComponent implements OnInit, AfterViewInit {
           error: (err) => {
             console.error('Error updating user', err);
             this.loadingService.hide();
-            this.snackBar.open('Failed updating user. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            if (err == 'Token refresh failed') {
+              this.snackBar.open('Token expired. Please login again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            } else {
+              this.snackBar.open('Failed updating user. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            }
           }
         });
       }
@@ -164,7 +172,11 @@ export class ListUserComponent implements OnInit, AfterViewInit {
           error: (err) => {
             console.error('Error deleting user', err);
             this.loadingService.hide();
-            this.snackBar.open('Failed deleting user. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            if (err == 'Token refresh failed') {
+              this.snackBar.open('Token expired. Please login again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            } else {
+              this.snackBar.open('Failed deleting user. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            }
           }
         });
       }
@@ -189,7 +201,11 @@ export class ListUserComponent implements OnInit, AfterViewInit {
           error: (err) => { 
             console.error('Error updating password', err);
             this.loadingService.hide();
-            this.snackBar.open('Failed resetting password. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            if (err == 'Token refresh failed') {
+              this.snackBar.open('Token expired. Please login again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            } else {
+              this.snackBar.open('Failed resetting password. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+            }
           }
         });
       }

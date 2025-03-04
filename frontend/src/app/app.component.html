@@ -1,50 +1,59 @@
 <div class="wrapper">
-  <div class="sidenav-container" >
-    <mat-sidenav-container class="h-100">
-      <mat-sidenav mode="side" opened class="side-nav" *ngIf="!isLoginPage">
+  <mat-drawer-container class="sidenav-container h-100" autosize>
+    <mat-drawer #drawer class="side-nav" mode="side" *ngIf="!isLoginPage" [opened]="true">
+      <div class="company-header d-flex align-items-center p-3">
+        <mat-icon class="fs-3 text-white me-2 h-25">security</mat-icon>
+        <h3 class="company-name fs-5 mb-0 fw-semibold text-white">IP Management</h3>
+      </div>
 
-        <div class="company-header d-flex align-items-center p-3">
-          <mat-icon class="fs-3 text-white me-2 h-25">security</mat-icon>
-          <h3 class="company-name fs-5 mb-0 fw-semibold text-white">IP Management</h3>
+      <div class="profile-section d-flex align-items-center p-3">
+        <div class="profile-info">
+          <p class="user-name mb-0 fw-semibold fs-6 text-white">{{ userName }}</p>
+          <p class="user-role mb-0 fs-7 text-white d-flex align-items-center gap-1">
+            <mat-icon>mail</mat-icon> {{ userRole }}
+          </p>
         </div>
+      </div>
 
-        <div class="profile-section d-flex align-items-center p-3">
-          <div class="profile-info">
-            <p class="user-name mb-0 fw-semibold fs-6 text-white">{{ userName }}</p>
-            <p class="user-role mb-0 fs-7 text-white">{{ userRole }}</p>
-          </div>
-        </div>
+      <mat-nav-list>
+        <a class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6"
+          routerLink="/profile">
+          <mat-icon class="me-2">person</mat-icon>My Profile
+        </a>
 
-        <mat-nav-list>
-          <a class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6" routerLink="/profile">
-            <mat-icon class="me-2">person</mat-icon>My Profile
-          </a>
+        <a class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6"
+          routerLink="/list-ip">
+          <mat-icon class="me-2">location_on</mat-icon>IP Addresses
+        </a>
 
-          <a class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6" routerLink="/list-ip">
-            <mat-icon class="me-2">location_on</mat-icon>IP Addresses
-          </a>
+        <a *ngIf="checkViewUserPermission()"
+          class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6"
+          routerLink="/list-user">
+          <mat-icon class="me-2">people</mat-icon>Users
+        </a>
 
-          <a *ngIf="checkViewUserPermission()" class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6" routerLink="/list-user">
-            <mat-icon class="me-2">people</mat-icon>Users
-          </a>
+        <a *ngIf="checkViewLogPermission()"
+          class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6"
+          routerLink="/audit-log">
+          <mat-icon class="me-2">event_note</mat-icon>Audit Log
+        </a>
 
-          <a *ngIf="checkViewLogPermission()" class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6" routerLink="/audit-log">
-            <mat-icon class="me-2">event_note</mat-icon>Audit Log
-          </a>
+        <a class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6" (click)="logout()">
+          <mat-icon class="me-2">exit_to_app</mat-icon>Logout
+        </a>
+      </mat-nav-list>
+    </mat-drawer>
 
-          <a class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6" (click)="logout()">
-            <mat-icon class="me-2">exit_to_app</mat-icon>Logout
-          </a>
-        </mat-nav-list>
-      </mat-sidenav>
+    <mat-drawer-content>
+      <button mat-mini-fab (click)="toggleSidenav()" color="primary"  *ngIf="!isLoginPage" >
+        <mat-icon>menu</mat-icon>
+      </button>
 
-      <mat-sidenav-content>
-        <div>
-          <router-outlet></router-outlet>
-        </div>
-      </mat-sidenav-content>
-    </mat-sidenav-container>
-  </div>
-  
+      <div>
+        <router-outlet></router-outlet>
+      </div>
+    </mat-drawer-content>
+  </mat-drawer-container>
+
   <app-loader></app-loader>
 </div>

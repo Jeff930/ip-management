@@ -64,10 +64,13 @@ export class AuditLogComponent implements OnInit, AfterViewInit {
       error: (err) => {
         console.error('Error fetching logs', err);
         this.loadingService.hide();
-        this.snackBar.open('Failed fetching audit logs. Please try again.', 'Close', {
+        if (err == 'Token refresh failed') {
+          this.snackBar.open('Token expired. Please login again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+        } else {
+          this.snackBar.open('Failed fetching audit logs. Please try again.', 'Close', {
           duration: 3000,
-          panelClass: ['error-snackbar'],
-        });
+          panelClass: ['error-snackbar'] });
+        }
       },
     });
   }

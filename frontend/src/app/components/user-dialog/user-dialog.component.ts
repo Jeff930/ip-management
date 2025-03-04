@@ -10,9 +10,7 @@ import { CommonModule } from '@angular/common';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 
 import {
-  MatDialog,
   MatDialogActions,
-  MatDialogClose,
   MatDialogContent,
   MatDialogRef,
   MatDialogTitle,
@@ -39,7 +37,6 @@ export interface UserDialogData {
     MatSelectModule,
     CommonModule,
     MatDialogActions,
-    MatDialogClose,
     MatDialogContent,
     MatDialogTitle,
     DateFormatPipe

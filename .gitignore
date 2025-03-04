@@ -3,8 +3,6 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
-yarn.lock
 
 # Angular build output
 frontend/dist/
@@ -22,9 +20,6 @@ public/storage/
 # Laravel environment files
 .env
 .env.*.local
-
-# Composer dependencies
-composer.lock
 
 # Nginx logs & config cache
 nginx/logs/

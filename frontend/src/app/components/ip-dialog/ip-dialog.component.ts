@@ -1,8 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import {
-  MatDialog,
   MatDialogActions,
-  MatDialogClose,
   MatDialogContent,
   MatDialogRef,
   MatDialogTitle,
@@ -25,7 +23,7 @@ export interface IpDialogData {
 @Component({
   selector: 'app-ip-dialog',
   templateUrl: './ip-dialog.component.html',
-  imports: [MatButtonModule, MatDialogActions, MatDialogClose, MatDialogTitle, MatDialogContent, MatFormFieldModule, FormsModule, MatInputModule,
+  imports: [MatButtonModule, MatDialogActions, MatDialogTitle, MatDialogContent, MatFormFieldModule, FormsModule, MatInputModule,
     ReactiveFormsModule, CommonModule, DateFormatPipe],
   styleUrls: ['./ip-dialog.component.scss']
 })

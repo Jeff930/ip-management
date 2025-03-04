@@ -27,10 +27,6 @@ Route::middleware('jwt')->group(function () {
         Route::put('/update', [AuthController::class, 'updateProfile']);
     });
     Route::get('/roles', [RoleController::class, 'index']);
-    Route::get('/ip-addresses', [IpAddressController::class, 'index']);
-    Route::post('/ip-addresses', [IpAddressController::class, 'store']);
-    Route::delete('/ip-addresses/{ipAddress}', [IpAddressController::class, 'destroy']);
-    Route::put('/ip-addresses/{ipAddress}', [IpAddressController::class, 'update']); 
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 

@@ -55,7 +55,6 @@ export class UserDialogComponent {
     private dialogRef: MatDialogRef<UserDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: UserDialogData
   ) {
-    console.log(data.roles);
     this.roles = data.roles || [];
 
     this.isEditMode = data.mode === 'edit';

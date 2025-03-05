@@ -190,8 +190,8 @@ export class ListUserComponent implements OnInit, AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      this.loadingService.show();
       if (result && result.password) {
+        this.loadingService.show();
         this.userService.updatePassword(row.id, result).subscribe({
           next: (response: any) => {
             console.log('Password updated successfully for user:', row.id, response);

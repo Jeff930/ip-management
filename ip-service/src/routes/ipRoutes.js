@@ -83,7 +83,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       return res.status(404).json({ error: "IP not found" });
     }
 
-    if (!isValidIP(ip)) {
+    if (ip && !isValidIP(ip)) {
       return res.status(400).json({ error: "Invalid IP address format." });
     }
 

@@ -45,9 +45,32 @@ Create `.env` files for each service:
    docker-compose up --build -d
    ```
    This will create and start the following containers:
-   - `frontend`: Angular frontend running on **http://localhost:4200**
-   - `auth-service`: Laravel authentication running on **http://localhost:8000**
-   - `ip-service`: Node.js IP management running on **http://localhost:3000**
+   - `frontend`: Angular frontend running on **http://localhost/**
+   - `auth-service`: Laravel authentication running on **http://localhost/auth-api/**
+   - `ip-service`: Node.js IP management running on **http://localhost/ip-api/**
+
+   Handling Missing Dependencies
+   - If dependencies are missing, access the respective containers and install them manually:
+
+      FRONTEND(ANGULAR)
+      ```sh
+      docker exec -it ip-frontend sh
+      npm install
+      ```
+
+      AUTH-SERVICE(LARAVEL)
+      ```sh
+      docker exec -it auth-service sh
+      composer install
+      php artisan migrate --seed
+      ```
+
+      IP-SERVICE(NODEJS)
+      ```sh
+      docker exec -it ip-management-service sh
+      npm install
+      ```
+
 
 3. Check running containers:
    ```sh

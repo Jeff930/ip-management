@@ -34,7 +34,7 @@ services:
       - DB_DATABASE=ip_management
     volumes:
       - ./ip-service:/app
-      - /node_modules
+      - /app/node_modules
     networks:
       - app-network
 

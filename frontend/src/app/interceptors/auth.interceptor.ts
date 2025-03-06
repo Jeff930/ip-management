@@ -2,7 +2,6 @@ import { HttpRequest, HttpHandlerFn, HttpEvent, HttpInterceptorFn, HttpErrorResp
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, switchMap, filter, take } from 'rxjs/operators';
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 export const AuthInterceptor: HttpInterceptorFn = (
@@ -10,7 +9,6 @@ export const AuthInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ): Observable<HttpEvent<any>> => {
   const authService = inject(AuthService);
-  const router = inject(Router);
   const token = authService.getToken();
   let authReq = req;
 
@@ -21,7 +19,7 @@ export const AuthInterceptor: HttpInterceptorFn = (
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401 && !req.url.includes('/login') && !req.url.includes('/refresh')) {
-        return handle401Error(req, next, authService, router);
+        return handle401Error(req, next, authService);
       }
       return throwError(() => error);
     })
@@ -34,8 +32,7 @@ const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 function handle401Error(
   request: HttpRequest<any>,
   next: HttpHandlerFn,
-  authService: AuthService,
-  router: Router
+  authService: AuthService
 ): Observable<HttpEvent<any>> {
   if (!isRefreshing) {
     isRefreshing = true;
@@ -44,7 +41,7 @@ function handle401Error(
     return authService.refreshToken().pipe(
       switchMap((response: any) => {
         if (!response?.access_token) {
-          handleLogout(authService, router);
+          handleLogout(authService);
           return throwError(() => new Error("Invalid refresh token response"));
         }
 
@@ -58,7 +55,7 @@ function handle401Error(
       catchError((err) => {
         isRefreshing = false;
         refreshTokenSubject.next(null);
-        handleLogout(authService, router);
+        handleLogout(authService);
         return throwError(() => err);
       })
     );
@@ -69,7 +66,7 @@ function handle401Error(
       take(1),
       switchMap(token => {
         if (!token) {
-          handleLogout(authService, router);
+          handleLogout(authService);
           return throwError(() => new Error("No token available after refresh"));
         }
         return next(request.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));
@@ -78,8 +75,7 @@ function handle401Error(
   }
 }
 
-function handleLogout(authService: AuthService, router: Router) {
+function handleLogout(authService: AuthService) {
   authService.clearLocalStorage();
-  router.navigate(['/login']); 
 }
 

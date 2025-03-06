@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -10,6 +10,7 @@ import { AuthService } from '../../services/auth.service';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { LoadingService } from '../../services/loading.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -18,13 +19,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent {
   userInfoForm: FormGroup;
   passwordForm: FormGroup;
   userData: any = {};
 
   constructor(private fb: FormBuilder, private authService: AuthService, private loadingService: LoadingService,
-    private snackBar: MatSnackBar) {
+    private snackBar: MatSnackBar, private route: ActivatedRoute) {
+
     this.userInfoForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]]
@@ -38,28 +40,16 @@ export class ProfileComponent implements OnInit {
       },
       { validators: this.passwordMatchValidator }
     );
-  }
 
-  ngOnInit(): void {
-    this.loadUserData();
-  }
-
-  loadUserData(): void {
-    this.loadingService.show();
-    this.authService.getUser().subscribe({
-      next: (response: any) => {
-        console.log(response);
-        this.userData = response;
+    this.route.data.subscribe(data => {
+      if (data['profile'].error) {
+        this.snackBar.open(data['profile'].message, 'Close', { duration: 3000 });
+      } else {
+        this.userData = data['profile'];
         this.userInfoForm.patchValue({
           name: this.userData.name,
           email: this.userData.email
         });
-        this.loadingService.hide();
-      },
-      error: (error) => {
-        console.error('Error fetching user data:', error);
-        this.loadingService.hide();
-        this.snackBar.open('Failed fetching user profile. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
       }
     });
   }

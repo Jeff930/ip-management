@@ -7,14 +7,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { AuditService, LogData } from '../../services/audit.service';
+import { LogData } from '../../services/audit.service';
 import { CommonModule } from '@angular/common';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
-import { LoadingService } from '../../services/loading.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-audit-log',
@@ -36,7 +36,7 @@ import { MatNativeDateModule } from '@angular/material/core';
   templateUrl: './audit-log.component.html',
   styleUrl: './audit-log.component.scss',
 })
-export class AuditLogComponent implements OnInit, AfterViewInit {
+export class AuditLogComponent implements AfterViewInit {
   auditLogColumns: string[] = ['createdAt', 'sessionId', 'actorId', 'actor', 'action', 'targetId', 'targetType', 'target', 'changes'];
   auditLogDataSource: MatTableDataSource<LogData> = new MatTableDataSource<LogData>();
   columnFilters: { [key: string]: string } = {};
@@ -44,34 +44,13 @@ export class AuditLogComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(
-    private auditService: AuditService,
-    private loadingService: LoadingService,
-    private snackBar: MatSnackBar
-  ) { }
-
-  ngOnInit() {
-    this.fetchAuditLogs();
-  }
-
-  fetchAuditLogs() {
-    this.loadingService.show();
-    this.auditService.getAuditLogs().subscribe({
-      next: (data) => {
-        this.auditLogDataSource.data = data;
-        this.loadingService.hide();
-      },
-      error: (err) => {
-        console.error('Error fetching logs', err);
-        this.loadingService.hide();
-        if (err == 'Token refresh failed') {
-          this.snackBar.open('Token expired. Please login again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
-        } else {
-          this.snackBar.open('Failed fetching audit logs. Please try again.', 'Close', {
-          duration: 3000,
-          panelClass: ['error-snackbar'] });
-        }
-      },
+  constructor(private snackBar: MatSnackBar, private route: ActivatedRoute) {
+    this.route.data.subscribe(data => {
+      if (data['auditLogs'].error) {
+        this.snackBar.open(data['auditLogs'].message, 'Close', { duration: 3000 });
+      } else {
+        this.auditLogDataSource.data = data['auditLogs'];
+      }
     });
   }
 

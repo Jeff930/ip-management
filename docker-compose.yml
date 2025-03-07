@@ -1,6 +1,22 @@
 version: "3.8"
 
 services:
+  gateway:
+    build: ./gateway
+    container_name: ip-gateway
+    restart: always
+    depends_on:
+      - auth-service
+      - ip-service
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    volumes:
+      - ./gateway:/app
+      - /app/node_modules
+    command: ["node", "src/server.js"]
+
   auth-service:
     build: ./auth-service
     container_name: ip-auth-service
@@ -75,8 +91,7 @@ services:
       - ./nginx/certs:/etc/nginx/certs
     depends_on:
       - frontend
-      - ip-service
-      - auth-service
+      - gateway
     networks:
       - app-network
 

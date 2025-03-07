@@ -16,6 +16,7 @@ import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { LoadingService } from '../../services/loading.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-list-ip',
@@ -38,42 +39,29 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 export class ListIpComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['_id', 'ip', 'addedByUserName', 'label', 'createdAt', 'actions'];
   dataSource: MatTableDataSource<IpData> = new MatTableDataSource<IpData>();
+  canDeleteIP = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private dialog: MatDialog, private ipService: IpAddressService, private authService: AuthService, private loadingService: LoadingService,
-    private snackBar: MatSnackBar) { }
-  canDeleteIP = false;
+  private snackBar: MatSnackBar, private route: ActivatedRoute) {
+    this.route.data.subscribe(data => {
+      if (data['ipAddresses'].error) {
+        this.snackBar.open(data['ipAddresses'].message, 'Close', { duration: 3000 });
+      } else {
+        this.dataSource.data = data['ipAddresses'];
+      }
+    });
+  }
 
   ngOnInit(): void {
-    this.loadIpAddresses();
     this.checkDeletePermission();
   }
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  loadIpAddresses(): void {
-    this.loadingService.show();
-    this.ipService.getIpAddresses().subscribe({
-      next: (data) => {
-        this.dataSource.data = data;
-        this.loadingService.hide();
-      },
-      error: (err) => {
-        console.error('Error fetching IPs', err);
-
-        this.loadingService.hide();
-        if (err =='Token refresh failed'){
-          this.snackBar.open('Token expired. Please login again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
-        }else{
-          this.snackBar.open('Failed fetching IP Addresses. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
-        }
-      }
-    });
   }
 
   applyFilter(event: Event): void {
@@ -156,6 +144,14 @@ export class ListIpComponent implements OnInit, AfterViewInit {
   }
 
   deleteData(row: IpData): void {
+    if (!this.canDeleteIP) {
+      this.snackBar.open('You do not have permission to delete IP addresses.', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
@@ -176,7 +172,7 @@ export class ListIpComponent implements OnInit, AfterViewInit {
           error: (err) => {
             console.error('Error deleting IP', err);
             this.loadingService.hide();
-            if (err == 'Token refresh failed') {
+            if (err === 'Token refresh failed') {
               this.snackBar.open('Token expired. Please login again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
             } else {
               this.snackBar.open('Failed deleting IP Address. Please try again.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
@@ -187,8 +183,9 @@ export class ListIpComponent implements OnInit, AfterViewInit {
     });
   }
 
-  checkDeletePermission() {
-    const permissions = this.authService.getUserPermissions();
-    this.canDeleteIP = permissions.includes('delete-ip');
+  checkDeletePermission(): void {
+      const permissions = this.authService.getUserPermissions();
+      this.canDeleteIP = permissions.includes('delete-ip');
   }
+
 }

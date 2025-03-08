@@ -8,8 +8,6 @@ services:
     depends_on:
       - auth-service
       - ip-service
-    ports:
-      - "8080:8080"
     networks:
       - app-network
     volumes:
@@ -61,8 +59,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: ip_auth
-    ports:
-      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -72,8 +68,6 @@ services:
     image: mongo:6
     container_name: ip-mongo
     restart: always
-    ports:
-      - "27017:27017"
     volumes:
       - mongo_data:/data/db
     networks:
@@ -100,8 +94,6 @@ services:
     container_name: ip-frontend
     restart: always
     working_dir: /app
-    ports:
-      - "4200:4200"
     volumes:
       - ./frontend:/app:cached
       - /app/node_modules
@@ -118,3 +110,6 @@ volumes:
 networks:
   app-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24 

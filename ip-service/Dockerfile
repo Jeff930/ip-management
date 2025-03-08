@@ -8,6 +8,4 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 3000
-
 CMD ["npx", "nodemon", "-L", "--inspect=0.0.0.0", "src/server.js"]

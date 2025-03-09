@@ -89,6 +89,18 @@ services:
     networks:
       - app-network
 
+  ip-auth-nginx:
+    image: nginx:latest
+    container_name: ip-auth-nginx
+    restart: always
+    volumes:
+      - ./nginx/ip-auth-nginx.conf:/etc/nginx/nginx.conf
+      - ./auth-service:/var/www/html
+    depends_on:
+      - auth-service
+    networks:
+      - app-network
+
   frontend:
     build: ./frontend
     container_name: ip-frontend
@@ -112,4 +124,4 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 192.168.1.0/24 
+        - subnet: 192.168.1.0/24

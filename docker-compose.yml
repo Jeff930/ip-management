@@ -31,6 +31,7 @@ services:
       - DB_PASSWORD=root
     volumes:
       - ./auth-service:/var/www/html
+      - ./auth-service/php-fpm/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
     networks:
       - app-network
 

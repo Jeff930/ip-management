@@ -14,6 +14,9 @@ Route::get('/check', function () {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/refresh', [AuthController::class, 'refresh']);
 Route::middleware('jwt')->group(function () {
+    Route::get('/validate-token', function () {
+        return response()->json(['isTokenValid' => true]);
+    });
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index']);
         Route::post('/', [UserController::class, 'store']);

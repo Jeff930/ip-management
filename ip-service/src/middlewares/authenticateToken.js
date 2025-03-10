@@ -1,20 +1,25 @@
-const jwt = require("jsonwebtoken");
+const axios = require("axios");
 
-module.exports = function (req, res, next) {
+module.exports = async function (req, res, next) {
   const token = req.header("Authorization");
   if (!token) {
     return res.status(401).json({ error: "Access denied. No token provided." });
   }
 
   try {
-    const decoded = jwt.verify(token.replace("Bearer ", ""), process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ error: "Token expired." });
-    }
+    const response = await axios.get(`http://ip-gateway:8080/auth/validate-token`, {
+      headers: {
+        Authorization: token, 
+      },
+    });
 
-    res.status(403).json({ error: "Invalid token." });
+    if (response.data.isTokenValid) {
+      next();
+    } else {
+      res.status(401).json({ error: "Invalid token." });
+    }
+  } catch (error) {
+    console.error("Error during token validation:", error);
+    res.status(500).json({ error: "Internal server error." });
   }
 };

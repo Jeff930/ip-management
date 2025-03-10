@@ -1,9 +1,10 @@
 const express = require("express");
-const bodyParser = require("body-parser");
+
+process.env.DEBUG = "http-proxy-middleware";
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
 const app = express();
-app.use(bodyParser.json());
+
 
 app.get("/", (req, res) => {
     console.log("test")

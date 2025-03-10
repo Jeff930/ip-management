@@ -18,7 +18,7 @@ app.use(express.json());
 
 const apiRouter = express.Router();
 
-app.use("/ip-api", apiRouter);
+app.use("/", apiRouter);
 
 apiRouter.get("/test", async (req, res) => {
   try {
@@ -32,8 +32,8 @@ apiRouter.get("/test", async (req, res) => {
 const ipRoutes = require("./routes/ipRoutes");
 const auditLogRoutes = require("./routes/auditRoutes");
 
-app.use("/ip-api/ips", ipRoutes);
-app.use("/ip-api/audit-logs", auditLogRoutes);
+app.use("/ip-addresses", ipRoutes);
+app.use("/audit-logs", auditLogRoutes);
 
 app.listen(port, () => {
   console.log(`🚀 IP Service listening on port ${port}`);

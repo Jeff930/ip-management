@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
-  apiAuthUrl: 'https://localhost/auth-api',
-  apiUserUrl: 'https://localhost/auth-api/users',
-  apiIpUrl: 'https://localhost/ip-api/ips',
-  apiAuditLogUrl: 'https://localhost/ip-api/audit-logs'
+  apiAuthUrl: 'https://localhost/api/auth',
+  apiUserUrl: 'https://localhost/api/auth/users',
+  apiIpUrl: 'https://localhost/api/ip/ip-addresses',
+  apiAuditLogUrl: 'https://localhost/api/ip/audit-logs'
 };

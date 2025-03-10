@@ -107,16 +107,6 @@ export class AuthService {
     return this.authStatus.asObservable();
   }
 
-  decodeToken(): any {
-    const token = this.getToken();
-    if (!token) return null;
-    try {
-      return jwtDecode(token);
-    } catch (error) {
-      return null;
-    }
-  }
-
   getUserEmail(): string {
     const userString = localStorage.getItem('currentUser');
     if (!userString) return '';
@@ -151,10 +141,21 @@ export class AuthService {
   }
 
   getUserPermissions(): string[] {
-    const decoded = this.decodeToken();
-    return decoded?.permissions || [];
+    const currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) {
+      console.log('No currentUser found in localStorage');
+      return [];
+    }
+    const parsedUser = JSON.parse(currentUser);
+    if (parsedUser && parsedUser.role && Array.isArray(parsedUser.role.permissions)) {
+      const permissions = parsedUser.role.permissions.map((permission: { name: string }) => permission.name);
+      return permissions;
+    } else {
+      console.log('No permissions found for the current user');
+      return [];
+    }
   }
-
+  
   clearLocalStorage(){
     localStorage.removeItem('access_token');
     localStorage.removeItem('currentUser');

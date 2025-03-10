@@ -23,8 +23,6 @@ class AuthController extends Controller
         $user->session_id = Str::uuid(); 
         $user->save();
 
-        $token = JWTAuth::fromUser($user);
-
         return $this->respondWithToken($token);
     }
 
@@ -47,37 +45,35 @@ class AuthController extends Controller
     }
 
     public function refresh()
-{
-    try {
-        $newToken = auth()->refresh();
-        
-        $user = JWTAuth::setToken($newToken)->toUser();
+    {
+        try {
+            $newToken = auth()->refresh();
+            
+            $user = JWTAuth::setToken($newToken)->toUser();
 
-        return $this->respondWithToken($newToken, $user);
-    } catch (\PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException $e) {
-        return response()->json(['error' => 'Token refresh failed'], 401);
-    }
-}
-
-protected function respondWithToken($token, $user = null)
-{
-    $user = $user ?? auth()->user();
-
-    if (!$user) {
-        return response()->json(['error' => 'User not authenticated'], 401);
+            return $this->respondWithToken($newToken, $user);
+        } catch (\PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException $e) {
+            return response()->json(['error' => 'Token refresh failed'], 401);
+        }
     }
 
-    $user->load('role.permissions');
+    protected function respondWithToken($token, $user = null)
+    {
+        $user = $user ?? auth()->user();
 
-    return response()->json([
-        'access_token' => $token,
-        'token_type'   => 'bearer',
-        'expires_in'   => auth()->factory()->getTTL() * 60,
-        'user'         => $user,
-        'session_id'   => $user->session_id ?? null,
-    ]);
-}
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
 
+        $user->load('role.permissions');
+
+        return response()->json([
+            'access_token' => $token,
+            'token_type'   => 'bearer',
+            'expires_in'   => auth()->factory()->getTTL() * 60,
+            'user'         => $user
+        ]);
+    }
 
     public function updateProfile(Request $request)
     {
@@ -114,5 +110,16 @@ protected function respondWithToken($token, $user = null)
         ]);
 
         return response()->json(['message' => 'Password updated successfully']);
+    }
+
+    public function validateToken(Request $request)
+    {
+        // Get the authenticated user and eager load the role and permissions
+        $user = $request->user()->load('role.permissions');
+        
+        return response()->json([
+            'isTokenValid' => true,
+            'user' => $user
+        ]);
     }
 }

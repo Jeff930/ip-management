@@ -7,13 +7,20 @@ module.exports = async function (req, res, next) {
   }
 
   try {
-    const response = await axios.get(`http://ip-gateway:8080/auth/validate-token`, {
+    const response = await axios.get(`${process.env.GATEWAY_URL}/auth/validate-token`, {
       headers: {
         Authorization: token, 
       },
     });
     if (response.data.isTokenValid) {
-      req.user = response.data.user;
+      req.user = {
+        ...response.data.user,
+        role: {
+          ...response.data.user.role,
+          permissions: response.data.user.role.permissions
+        }
+      };
+      console.log("User with permissions:", req.user);
       next();
     } else {
       res.status(401).json({ error: "Invalid token." });

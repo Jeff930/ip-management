@@ -12,8 +12,8 @@ module.exports = async function (req, res, next) {
         Authorization: token, 
       },
     });
-
     if (response.data.isTokenValid) {
+      req.user = response.data.user;
       next();
     } else {
       res.status(401).json({ error: "Invalid token." });

@@ -8,4 +8,4 @@ RUN npm install
 
 COPY . .
 
-CMD ["npx", "nodemon", "-L", "--inspect=0.0.0.0", "src/server.js"]
+CMD ["node", "server.js"]

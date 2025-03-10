@@ -1,6 +1,20 @@
 version: "3.8"
 
 services:
+  gateway:
+    build: ./gateway
+    container_name: ip-gateway
+    restart: always
+    depends_on:
+      - auth-service
+      - ip-service
+    networks:
+      - app-network
+    volumes:
+      - ./gateway:/app
+      - /app/node_modules
+    command: ["node", "src/server.js"]
+
   auth-service:
     build: ./auth-service
     container_name: ip-auth-service
@@ -17,6 +31,7 @@ services:
       - DB_PASSWORD=root
     volumes:
       - ./auth-service:/var/www/html
+      - ./auth-service/php-fpm/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
     networks:
       - app-network
 
@@ -45,8 +60,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: ip_auth
-    ports:
-      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -56,8 +69,6 @@ services:
     image: mongo:6
     container_name: ip-mongo
     restart: always
-    ports:
-      - "27017:27017"
     volumes:
       - mongo_data:/data/db
     networks:
@@ -75,7 +86,18 @@ services:
       - ./nginx/certs:/etc/nginx/certs
     depends_on:
       - frontend
-      - ip-service
+      - gateway
+    networks:
+      - app-network
+
+  ip-auth-nginx:
+    image: nginx:latest
+    container_name: ip-auth-nginx
+    restart: always
+    volumes:
+      - ./nginx/ip-auth-nginx.conf:/etc/nginx/nginx.conf
+      - ./auth-service:/var/www/html
+    depends_on:
       - auth-service
     networks:
       - app-network
@@ -85,8 +107,6 @@ services:
     container_name: ip-frontend
     restart: always
     working_dir: /app
-    ports:
-      - "4200:4200"
     volumes:
       - ./frontend:/app:cached
       - /app/node_modules
@@ -103,3 +123,6 @@ volumes:
 networks:
   app-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24

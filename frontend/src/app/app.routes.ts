@@ -4,6 +4,7 @@ import { LoginGuard } from './guards/login.guard';
 import { userResolver } from './resolvers/user.resolver';
 import { ipResolver } from './resolvers/ip.resolver';
 import { auditResolver } from './resolvers/audit.resolver';
+import { userAuditResolver } from './resolvers/user-audit.resolver';
 import { profileResolver } from './resolvers/profile.resolver';
 
 export const routes: Routes = [
@@ -47,6 +48,13 @@ export const routes: Routes = [
           import('./pages/audit-log/audit-log.component').then((m) => m.AuditLogComponent),
         data: { permission: 'view-logs' },
         resolve: { auditLogs: auditResolver }
+      },
+      {
+        path: 'user-audit-log',
+        loadComponent: () =>
+          import('./pages/user-audit-log/user-audit-log.component').then((m) => m.UserAuditLogComponent),
+        data: { permission: 'view-logs' },
+        resolve: { userAuditLogs: userAuditResolver }
       }
     ]
   },

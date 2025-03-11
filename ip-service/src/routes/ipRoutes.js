@@ -35,8 +35,8 @@ router.get("/", authenticateToken, async (req, res) => {
 
 router.post("/", authenticateToken, checkPermission("create-ip"), async (req, res) => {
   const { ip, comment, label } = req.body;
-  const addedByUserId = req.user.sub;
-  const addedByUserName = req.user.user_name;
+  const addedByUserId = req.user.id;
+  const addedByUserName = req.user.name;
   const addedByUserEmail = req.user.email;
 
   if (!ip || !label) {
@@ -79,10 +79,10 @@ router.post("/", authenticateToken, checkPermission("create-ip"), async (req, re
 router.put("/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { ip, comment, label } = req.body;
-  const updatedByUserId = req.user.sub;
-  const updatedByUserName = req.user.user_name;
+  const updatedByUserId = req.user.id;
+  const updatedByUserName = req.user.name;
   const updatedByUserEmail = req.user.email;
-  const hasEditAnyIpPermission = req.user.permissions.includes("edit-any-ip");
+  const hasEditAnyIpPermission = req.user.role.permissions.includes("edit-any-ip");
 
   try {
     const existingIP = await IP.findById(id);
@@ -132,8 +132,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
 
 router.delete("/:id", authenticateToken, checkPermission("delete-ip"), async (req, res) => {
   const { id } = req.params;
-  const deletedByUserId = req.user.sub;
-  const deletedByUserName = req.user.user_name;
+  const deletedByUserId = req.user.id;
+  const deletedByUserName = req.user.name;
 
   try {
     const deletedIP = await IP.findByIdAndDelete(id);

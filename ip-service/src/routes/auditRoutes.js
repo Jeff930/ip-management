@@ -5,19 +5,20 @@ const { logAction } = require("../services/auditLogService");
 
 const router = express.Router();
 
-/**
- * Middleware to check user permissions
- */
 const checkPermission = (permission) => (req, res, next) => {
-  if (!req.user.permissions.includes(permission)) {
+  if (!req.user || !Array.isArray(req.user.role.permissions)) {
+    return res.status(403).json({ error: "Forbidden: No permissions found for the user" });
+  }
+
+  const hasPermission = req.user.role.permissions.some(p => p.name === permission);
+  
+  if (!hasPermission) {
     return res.status(403).json({ error: "Forbidden: Insufficient permissions" });
   }
+
   next();
 };
 
-/**
- * View logs (Requires `view-logs` permission)
- */
 router.get("/", authenticateToken, checkPermission("view-logs"), async (req, res) => {
   try {
     const logs = await AuditLog.find().sort({ createdAt: -1 });

@@ -23,7 +23,7 @@ app.use(
         target: process.env.IP_MANAGEMENT_SERVICE,
         changeOrigin: true,
     })
-));
+);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {

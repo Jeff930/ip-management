@@ -6,7 +6,6 @@ use App\Http\Controllers\IpAddressController;
 use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
 
-
 Route::get('/check', function () {
     return response()->json(['message' => 'Auth API is working!']);
 });
@@ -14,6 +13,7 @@ Route::get('/check', function () {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/refresh', [AuthController::class, 'refresh']);
 Route::middleware('jwt')->group(function () {
+    Route::get('/validate-token',[AuthController::class, 'validateToken']);
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index']);
         Route::post('/', [UserController::class, 'store']);

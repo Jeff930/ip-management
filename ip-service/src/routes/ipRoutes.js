@@ -7,9 +7,16 @@ const { Address4, Address6 } = require("ip-address");
 const router = express.Router();
 
 const checkPermission = (permission) => (req, res, next) => {
-  if (!req.user.permissions.includes(permission)) {
+  if (!req.user || !Array.isArray(req.user.role.permissions)) {
+    return res.status(403).json({ error: "Forbidden: No permissions found for the user" });
+  }
+
+  const hasPermission = req.user.role.permissions.some(p => p.name === permission);
+  
+  if (!hasPermission) {
     return res.status(403).json({ error: "Forbidden: Insufficient permissions" });
   }
+
   next();
 };
 

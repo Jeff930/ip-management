@@ -95,9 +95,9 @@ export class AuditLogComponent implements AfterViewInit {
     }
   }
 
-  getKeys(obj: any): string[] {
-    return obj ? Object.keys(obj) : [];
-  }
+  getKeys(changes: any): string[] {
+    return changes && typeof changes === 'object' ? Object.keys(changes) : [];
+  }  
 
   customFilterPredicate(data: LogData, filter: string): boolean {
     const filters = JSON.parse(filter);

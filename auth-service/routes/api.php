@@ -28,7 +28,7 @@ Route::middleware('jwt')->group(function () {
         Route::put('/update', [AuthController::class, 'updateProfile']);
     });
     Route::get('/roles', [RoleController::class, 'index']);
-    Route::get('/logs', [AuditLogController::class, 'index']);
+    Route::get('/user-logs', [AuditLogController::class, 'index']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 

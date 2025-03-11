@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\IpAddressController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\AuditLogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/check', function () {
@@ -27,6 +28,7 @@ Route::middleware('jwt')->group(function () {
         Route::put('/update', [AuthController::class, 'updateProfile']);
     });
     Route::get('/roles', [RoleController::class, 'index']);
+    Route::get('/logs', [AuditLogController::class, 'index']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 

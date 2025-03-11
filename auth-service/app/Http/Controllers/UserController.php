@@ -45,10 +45,15 @@ class UserController extends Controller
             'actor_id'    => auth()->id(),
             'session_id'  => auth()->user()->session_id,
             'actor_name'  => auth()->user()->name,
-            'action'      => 'USER CREATED',
+            'action'      => 'CREATED',
             'target_id'   => $user->id,
+            'target'      => $user->name,
             'target_type' => 'User',
-            'changes'     => $user->toArray(),
+            'changes'     => [
+                'name'      => $user->name,
+                'email'     => $user->email,
+                'role_name' => $roleName,
+            ],
         ]);
 
         return response()->json([
@@ -81,14 +86,21 @@ class UserController extends Controller
             'role_id' => $validated['role'],
         ]);
 
+        $roleName = Role::find($request->role)->name;
+
         AuditLogService::logAction([
             'actor_id'    => auth()->id(),
             'session_id'  => auth()->user()->session_id,
             'actor_name'  => auth()->user()->name,
-            'action'      => 'USER UPDATED',
+            'action'      => 'UPDATED',
             'target_id'   => $user->id,
+            'target'      => $user->name,
             'target_type' => 'User',
-            'changes'     => array_diff_assoc($user->only(['name', 'email', 'role_id']), $originalData),
+            'changes'     => [
+                'name'      => $user->name,
+                'email'     => $user->email,
+                'role_name' => $roleName,
+            ],
         ]);
 
         return response()->json([
@@ -111,10 +123,10 @@ class UserController extends Controller
             'actor_id'    => auth()->id(),
             'session_id'  => auth()->user()->session_id,
             'actor_name'  => auth()->user()->name,
-            'action'      => 'USER DELETED',
-            'target_id'   => $userId,
-            'target_type' => 'User',
-            'changes'     => ['name' => $userName],
+            'action'      => 'DELETED',
+            'target_id'   => $user->id,
+            'target'      => $user->name,
+            'target_type' => 'User'
         ]);
 
         return response()->json(['message' => 'User deleted successfully']);
@@ -140,6 +152,7 @@ class UserController extends Controller
             'actor_name'  => auth()->user()->name,
             'action'      => 'PASSWORD RESET',
             'target_id'   => $user->id,
+            'target'      => $user->name,
             'target_type' => 'User',
         ]);
 

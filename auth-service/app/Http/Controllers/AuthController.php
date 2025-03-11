@@ -30,6 +30,7 @@ class AuthController extends Controller
             'actor_name' => $user->name,
             'action'     => 'LOGIN',
             'target_id'  => $user->id,
+            'target'     => 'SELF',
             'target_type'=> 'User',
         ]);
 
@@ -52,6 +53,7 @@ class AuthController extends Controller
             'actor_name' => $user->name,
             'action'     => 'LOGOUT',
             'target_id'  => $user->id,
+            'target'     => 'SELF',
             'target_type'=> 'User',
         ]);
 
@@ -117,8 +119,12 @@ class AuthController extends Controller
             'actor_name' => $user->name,
             'action'     => 'PROFILE UPDATE',
             'target_id'  => $user->id,
+            'target'     => 'SELF',
             'target_type'=> 'User',
-            'changes'    => array_filter($changes),
+            'changes'     => [
+                'name'      => $user->name,
+                'email'     => $user->email
+            ],
         ]);
 
         return response()->json($user);
@@ -147,6 +153,7 @@ class AuthController extends Controller
             'actor_name' => $user->name,
             'action'     => 'PASSWORD CHANGE',
             'target_id'  => $user->id,
+            'target'     => 'SELF',
             'target_type'=> 'User',
         ]);
 

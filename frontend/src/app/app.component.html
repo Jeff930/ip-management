@@ -35,7 +35,13 @@
         <a *ngIf="checkViewLogPermission()"
           class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6"
           routerLink="/audit-log">
-          <mat-icon class="me-2">event_note</mat-icon>Audit Log
+          <mat-icon class="me-2">event_note</mat-icon>IP Logs
+        </a>
+
+        <a *ngIf="checkViewLogPermission()"
+          class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6"
+          routerLink="/user-audit-log">
+          <mat-icon class="me-2">list_alt</mat-icon>User Logs
         </a>
 
         <a class="sidebar-link d-flex align-items-center p-3 text-white text-decoration-none fs-6" (click)="logout()">

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, switchMap, catchError, tap, throwError } from 'rxjs';
-import { jwtDecode } from 'jwt-decode';
+import { Observable, BehaviorSubject, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../environment/environment';
 
 @Injectable({
@@ -9,34 +8,24 @@ import { environment } from '../../environment/environment';
 })
 export class AuthService {
   private apiUrl = environment.apiAuthUrl;
-  private apiAuditUrl = environment.apiAuditLogUrl;
   private authStatus = new BehaviorSubject<boolean>(this.getToken() ? true : false);
 
   constructor(private http: HttpClient) { }
 
   login(credentials: { email: string; password: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
-      switchMap((response: any) => {
-        const token = response.access_token;
-        const currentUser = response.user;
-        if (!token) {
-          return throwError(() => 'Login response did not include access token');
+      tap((response: any) => {
+        if (!response.access_token) {
+          throw new Error('Login response did not include access token');
         }
-        return this.http.post(`${this.apiAuditUrl}/log-login`, { user_id: response.user_id }, {
-          headers: { Authorization: `Bearer ${token}` }
-        }).pipe(
-          tap(() => {
-            localStorage.setItem('access_token', token);
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            this.authStatus.next(true);
-          }),
-          catchError(err => throwError(() => err.error.error))
-        );
+        localStorage.setItem('access_token', response.access_token);
+        localStorage.setItem('currentUser', JSON.stringify(response.user));
+        this.authStatus.next(true);
       }),
       catchError(err => throwError(() => err.error.error))
     );
   }
-
+  
   refreshToken(): Observable<any> {
     return this.http.post(`${this.apiUrl}/refresh`, {}).pipe(
       tap((response: any) => {
@@ -64,21 +53,11 @@ export class AuthService {
     if (!token) {
       return throwError(() => 'No access token found.');
     }
-
     return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
-      switchMap(() => {
-        return this.http.post(`${this.apiAuditUrl}/log-logout`, {}, {
-          headers: { Authorization: `Bearer ${token}` }
-        }).pipe(
-          tap(() => {
-            localStorage.removeItem('access_token');
-            this.authStatus.next(false);
-          }),
-          catchError(err => {
-            console.error('Log-logout failed:', err);
-            return throwError(() => err.error.error);
-          })
-        );
+      tap(() => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('currentUser');
+        this.authStatus.next(false);
       }),
       catchError(err => {
         console.error('Logout failed:', err);
@@ -86,6 +65,7 @@ export class AuthService {
       })
     );
   }
+  
 
   updateInfo(data: { name: string; email: string }): Observable<any> {
     return this.http.put(`${this.apiUrl}/profile/update`, data).pipe(
@@ -143,7 +123,7 @@ export class AuthService {
   getUserPermissions(): string[] {
     const currentUser = localStorage.getItem('currentUser');
     if (!currentUser) {
-      console.log('No currentUser found in localStorage');
+      console.log('No current user found in localStorage');
       return [];
     }
     const parsedUser = JSON.parse(currentUser);

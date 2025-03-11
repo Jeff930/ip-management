@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Services\AuditLogService;
 
 class UserController extends Controller
 {
@@ -17,73 +18,96 @@ class UserController extends Controller
 
         return User::orderBy('id', 'desc')->get()->append('role_name');
     }
-
+    
     public function store(Request $request)
-{
-    if (auth()->user()->cannot('create', User::class)) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
+    {
+        if (auth()->user()->cannot('create', User::class)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
-    $request->validate([
-        'name'                  => 'required|string|max:255',
-        'email'                 => 'required|email|unique:users',
-        'password'              => 'required|min:6|confirmed',
-        'role'                  => 'required|exists:roles,id',
-    ]);
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users',
+            'password' => 'required|min:6|confirmed',
+            'role'     => 'required|exists:roles,id',
+        ]);
 
-    $user = User::create([
-        'name'     => $request->name,
-        'email'    => $request->email,
-        'password' => Hash::make($request->password),
-        'role_id'  => $request->role,
-    ]);
+        $user = User::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'role_id'  => $request->role,
+        ]);
 
-    $roleName = Role::find($request->role)->name;
+        $roleName = Role::find($request->role)->name;
 
-    return response()->json([
-        'id'         => $user->id,
-        'name'       => $user->name,
-        'email'      => $user->email,
-        'role_id'    => $user->role_id,
-        'role_name'  => $roleName,
-        'created_at' => $user->created_at,
-        'updated_at' => $user->updated_at,
-    ]);
-}
+        AuditLogService::logAction([
+            'actor_id'    => auth()->id(),
+            'session_id'  => auth()->user()->session_id,
+            'actor_name'  => auth()->user()->name,
+            'action'      => 'CREATED',
+            'target_id'   => $user->id,
+            'target'      => $user->name,
+            'target_type' => 'User',
+            'changes'     => [
+                'name'      => $user->name,
+                'email'     => $user->email,
+                'role_name' => $roleName,
+            ],
+        ]);
 
-    public function update(Request $request, User $user)
-{
-    if (auth()->user()->cannot('update', $user)) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
-
-    $validated = $request->validate([
-        'name'  => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email,' . $user->id,
-        'role'  => 'required|exists:roles,id',
-    ]);
-
-    $user->update([
-        'name'    => $validated['name'],
-        'email'   => $validated['email'],
-        'role_id' => $validated['role'],
-    ]);
-
-    $roleName = Role::find($validated['role'])->name;
-
-    return response()->json([
-        'message'    => 'User updated successfully',
-        'user' => [
+        return response()->json([
             'id'         => $user->id,
             'name'       => $user->name,
             'email'      => $user->email,
             'role_id'    => $user->role_id,
-            'role_name'  => $roleName, 
+            'role_name'  => $roleName,
             'created_at' => $user->created_at,
             'updated_at' => $user->updated_at,
-        ]
-    ]);
-}
+        ]);
+    }
+
+    public function update(Request $request, User $user)
+    {
+        if (auth()->user()->cannot('update', $user)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role'  => 'required|exists:roles,id',
+        ]);
+
+        $originalData = $user->only(['name', 'email', 'role_id']);
+        $user->update([
+            'name'    => $validated['name'],
+            'email'   => $validated['email'],
+            'role_id' => $validated['role'],
+        ]);
+
+        $roleName = Role::find($request->role)->name;
+
+        AuditLogService::logAction([
+            'actor_id'    => auth()->id(),
+            'session_id'  => auth()->user()->session_id,
+            'actor_name'  => auth()->user()->name,
+            'action'      => 'UPDATED',
+            'target_id'   => $user->id,
+            'target'      => $user->name,
+            'target_type' => 'User',
+            'changes'     => [
+                'name'      => $user->name,
+                'email'     => $user->email,
+                'role_name' => $roleName,
+            ],
+        ]);
+
+        return response()->json([
+            'message' => 'User updated successfully',
+            'user'    => $user->fresh()->toArray(),
+        ]);
+    }
 
     public function destroy(User $user)
     {
@@ -91,7 +115,20 @@ class UserController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
+        $userId = $user->id;
+        $userName = $user->name;
         $user->delete();
+
+        AuditLogService::logAction([
+            'actor_id'    => auth()->id(),
+            'session_id'  => auth()->user()->session_id,
+            'actor_name'  => auth()->user()->name,
+            'action'      => 'DELETED',
+            'target_id'   => $user->id,
+            'target'      => $user->name,
+            'target_type' => 'User'
+        ]);
+
         return response()->json(['message' => 'User deleted successfully']);
     }
 
@@ -106,7 +143,17 @@ class UserController extends Controller
         ]);
 
         $user->update([
-            'password' => Hash::make($validated['password'])
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        AuditLogService::logAction([
+            'actor_id'    => auth()->id(),
+            'session_id'  => auth()->user()->session_id,
+            'actor_name'  => auth()->user()->name,
+            'action'      => 'PASSWORD RESET',
+            'target_id'   => $user->id,
+            'target'      => $user->name,
+            'target_type' => 'User',
         ]);
 
         return response()->json(['message' => 'Password reset successfully']);

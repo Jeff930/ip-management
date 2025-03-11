@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { LogData } from '../../services/audit.service';
+import { UserLogData } from '../../services/audit.service';
 import { CommonModule } from '@angular/common';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -17,7 +17,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-audit-log',
+  selector: 'app-user-audit-log',
   standalone: true,
   imports: [
     MatFormFieldModule,
@@ -33,12 +33,22 @@ import { ActivatedRoute } from '@angular/router';
     MatDatepickerModule,
     MatNativeDateModule,
   ],
-  templateUrl: './audit-log.component.html',
-  styleUrl: './audit-log.component.scss',
+  templateUrl: './user-audit-log.component.html',
+  styleUrl: './user-audit-log.component.scss'
 })
-export class AuditLogComponent implements AfterViewInit {
-  auditLogColumns: string[] = ['createdAt', 'sessionId', 'actorId', 'actor', 'action', 'targetId', 'targetType', 'target', 'changes'];
-  auditLogDataSource: MatTableDataSource<LogData> = new MatTableDataSource<LogData>();
+export class UserAuditLogComponent {
+  userAuditLogColumns: string[] = [
+    'created_at', 
+    'session_id', 
+    'actor_id', 
+    'actor_name', 
+    'action', 
+    'target_id', 
+    'target_type', 
+    'target', 
+    'changes'
+  ];
+  userAuditLogDataSource: MatTableDataSource<UserLogData> = new MatTableDataSource<UserLogData>();
   columnFilters: { [key: string]: string } = {};
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -46,27 +56,27 @@ export class AuditLogComponent implements AfterViewInit {
 
   constructor(private snackBar: MatSnackBar, private route: ActivatedRoute) {
     this.route.data.subscribe(data => {
-      if (data['auditLogs'].error) {
-        this.snackBar.open(data['auditLogs'].message, 'Close', { duration: 3000 });
+      if (data['userAuditLogs'].error) {
+        this.snackBar.open(data['userAuditLogs'].message, 'Close', { duration: 3000 });
       } else {
-        this.auditLogDataSource.data = data['auditLogs'];
+        this.userAuditLogDataSource.data = data['userAuditLogs'];
       }
     });
   }
 
   ngAfterViewInit() {
-    this.auditLogDataSource.paginator = this.paginator;
-    this.auditLogDataSource.sort = this.sort;
+    this.userAuditLogDataSource.paginator = this.paginator;
+    this.userAuditLogDataSource.sort = this.sort;
 
-    this.auditLogDataSource.filterPredicate = this.customFilterPredicate.bind(this);
+    this.userAuditLogDataSource.filterPredicate = this.customFilterPredicate.bind(this);
   }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    this.auditLogDataSource.filter = filterValue;
+    this.userAuditLogDataSource.filter = filterValue;
 
-    if (this.auditLogDataSource.paginator) {
-      this.auditLogDataSource.paginator.firstPage();
+    if (this.userAuditLogDataSource.paginator) {
+      this.userAuditLogDataSource.paginator.firstPage();
     }
   }
 
@@ -78,28 +88,28 @@ export class AuditLogComponent implements AfterViewInit {
     } else {
       delete this.columnFilters[column];
     }
-    this.auditLogDataSource.filter = JSON.stringify(this.columnFilters);
+    this.userAuditLogDataSource.filter = JSON.stringify(this.columnFilters);
 
-    if (this.auditLogDataSource.paginator) {
-      this.auditLogDataSource.paginator.firstPage();
+    if (this.userAuditLogDataSource.paginator) {
+      this.userAuditLogDataSource.paginator.firstPage();
     }
   }
 
   applyColumnFilter(column: string, event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
     this.columnFilters[column] = filterValue;
-    this.auditLogDataSource.filter = JSON.stringify(this.columnFilters);
+    this.userAuditLogDataSource.filter = JSON.stringify(this.columnFilters);
 
-    if (this.auditLogDataSource.paginator) {
-      this.auditLogDataSource.paginator.firstPage();
+    if (this.userAuditLogDataSource.paginator) {
+      this.userAuditLogDataSource.paginator.firstPage();
     }
   }
 
   getKeys(changes: any): string[] {
     return changes && typeof changes === 'object' ? Object.keys(changes) : [];
-  }  
+  }
 
-  customFilterPredicate(data: LogData, filter: string): boolean {
+  customFilterPredicate(data: UserLogData, filter: string): boolean {
     const filters = JSON.parse(filter);
 
     return Object.keys(filters).every((key) => {

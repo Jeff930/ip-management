@@ -3,5 +3,6 @@ export const environment = {
   apiAuthUrl: 'https://localhost/api/auth',
   apiUserUrl: 'https://localhost/api/auth/users',
   apiIpUrl: 'https://localhost/api/ip/ip-addresses',
-  apiAuditLogUrl: 'https://localhost/api/ip/audit-logs'
+  apiIpAuditLogUrl: 'https://localhost/api/ip/audit-logs',
+  apiUserAuditLogUrl: 'https://localhost/api/auth/user-logs'
 };

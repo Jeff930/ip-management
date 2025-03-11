@@ -1,36 +1,19 @@
-const express = require("express");
-const connectDB = require("./config/db");
+const mongoose = require("mongoose");
 require("dotenv").config();
 
-const app = express();
-const port = process.env.PORT || 3000;
+const mongoURI = process.env.MONGO_URI || "mongodb://mongo:27017/ip_management";
 
-connectDB();
-
-app.use(express.json());
-
-const apiRouter = express.Router();
-app.use("/ip-api", apiRouter);
-
-apiRouter.get("/test", async (req, res) => {
+const connectDB = async () => {
   try {
-    if (!mongoose.connection.readyState) {
-      throw new Error("MongoDB not connected");
-    }
-    const collections = await mongoose.connection.db.listCollections().toArray();
-    res.send({ message: "✅ MongoDB Connected!", collections });
-  } catch (error) {
-    console.error("❌ MongoDB Connection Error:", error);
-    res.status(500).json({ error: "MongoDB Connection Failed", details: error.message });
+    await mongoose.connect(mongoURI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("✅ Connected to MongoDB");
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err);
+    process.exit(1);
   }
-});
+};
 
-const ipRoutes = require("./routes/ipRoutes");
-const auditLogRoutes = require("./routes/auditLogRoutes");
-
-app.use("/ip-api/ips", ipRoutes);
-app.use("/ip-api/audit-logs", auditLogRoutes);
-
-app.listen(port, () => {
-  console.log(`🚀 IP Service listening on port ${port}`);
-});
+module.exports = connectDB;

@@ -15,6 +15,7 @@ import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { ActivatedRoute } from '@angular/router';
+import { format, toZonedTime } from 'date-fns-tz';
 
 @Component({
   selector: 'app-audit-log',
@@ -73,13 +74,12 @@ export class AuditLogComponent implements AfterViewInit {
   applyDateFilter(column: string, event: MatDatepickerInputEvent<Date>) {
     const date = event.value;
     if (date) {
-      const filterValue = date.toISOString().split('T')[0];
+      const filterValue = format(date, 'yyyy-MM-dd');
       this.columnFilters[column] = filterValue;
     } else {
       delete this.columnFilters[column];
     }
     this.auditLogDataSource.filter = JSON.stringify(this.columnFilters);
-
     if (this.auditLogDataSource.paginator) {
       this.auditLogDataSource.paginator.firstPage();
     }
@@ -101,21 +101,27 @@ export class AuditLogComponent implements AfterViewInit {
 
   customFilterPredicate(data: LogData, filter: string): boolean {
     const filters = JSON.parse(filter);
-
+  
     return Object.keys(filters).every((key) => {
       const filterValue = filters[key].toLowerCase();
       const dataValue = data[key];
-
+  
       if (dataValue === undefined || dataValue === null) {
         return false;
       }
 
+      if (key === 'createdAt') {
+        const localTime = toZonedTime(dataValue, Intl.DateTimeFormat().resolvedOptions().timeZone);
+        const localDate = format(localTime, 'yyyy-MM-dd');
+        return localDate === filterValue; 
+      }
+  
       if (key === 'changes' && typeof dataValue === 'object') {
         return Object.keys(dataValue).some((subKey) =>
           dataValue[subKey].toString().toLowerCase().includes(filterValue)
         );
       }
-
+  
       return dataValue.toString().toLowerCase().includes(filterValue);
     });
   }

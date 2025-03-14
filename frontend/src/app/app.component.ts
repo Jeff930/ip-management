@@ -30,15 +30,23 @@ export class AppComponent implements OnInit {
   constructor(private authService: AuthService, private router: Router, private loadingService: LoadingService,
     private snackBar: MatSnackBar, private dialog: MatDialog, ) { }
 
-  ngOnInit(): void {
-    this.authService.getAuthStatus().subscribe((status) => {
-      this.isLoginPage = !status;
-      if (status) {
-        this.userName = this.authService.getUserName();
-        this.userRole = this.authService.getUserEmail();
-      }
-    });
-  }
+    ngOnInit(): void {
+      this.authService.getAuthStatus().subscribe((status) => {
+        this.isLoginPage = !status;
+        if (status) {
+          this.userName = this.authService.getUserName();
+          this.userRole = this.authService.getUserEmail();
+        }
+      });
+    
+      this.authService.getUserUpdates().subscribe((user) => {
+        if (user) {
+          this.userName = user.name;
+          this.userRole = user.email;
+        }
+      });
+    }
+    
 
   toggleSidenav() {
     this.drawer.toggle();

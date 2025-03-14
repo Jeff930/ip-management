@@ -8,9 +8,22 @@ import { environment } from '../../environment/environment';
 })
 export class AuthService {
   private apiUrl = environment.apiAuthUrl;
-  private authStatus = new BehaviorSubject<boolean>(this.getToken() ? true : false);
+  private authStatus = new BehaviorSubject<boolean>(this.getToken() !== null);
+  private currentUserSubject = new BehaviorSubject<any>(this.getStoredUser());
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
+
+  private getStoredUser() {
+    return JSON.parse(localStorage.getItem('currentUser') || '{}');
+  }
+
+  getAuthStatus(): Observable<boolean> {
+    return this.authStatus.asObservable();
+  }
+
+  getUserUpdates(): Observable<any> {
+    return this.currentUserSubject.asObservable();
+  }
 
   login(credentials: { email: string; password: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
@@ -18,22 +31,20 @@ export class AuthService {
         if (!response.access_token) {
           throw new Error('Login response did not include access token');
         }
-        localStorage.setItem('access_token', response.access_token);
-        localStorage.setItem('currentUser', JSON.stringify(response.user));
-        this.authStatus.next(true);
+        this.storeUserData(response.access_token, response.user);
       }),
       catchError(err => throwError(() => err.error.error))
     );
   }
-  
+
   refreshToken(): Observable<any> {
     return this.http.post(`${this.apiUrl}/refresh`, {}).pipe(
       tap((response: any) => {
         localStorage.setItem('access_token', response.access_token);
-        this.authStatus.next(true); 
+        this.authStatus.next(true);
       }),
       catchError(err => {
-        this.authStatus.next(false); 
+        this.authStatus.next(false);
         return throwError(() => err.error.error);
       })
     );
@@ -42,33 +53,30 @@ export class AuthService {
   getUser(): Observable<any> {
     return this.http.get(`${this.apiUrl}/profile`).pipe(
       tap(user => {
-        localStorage.setItem('currentUser', JSON.stringify(user));
+        this.updateUser(user);
       }),
       catchError(err => throwError(() => err.error.error))
     );
   }
 
   logout(): Observable<any> {
-    const token = localStorage.getItem('access_token');
+    const token = this.getToken();
     if (!token) {
       return throwError(() => 'No access token found.');
     }
     return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
       tap(() => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('currentUser');
-        this.authStatus.next(false);
+        this.clearLocalStorage();
       }),
-      catchError(err => {
-        console.error('Logout failed:', err);
-        return throwError(() => err.error.error);
-      })
+      catchError(err => throwError(() => err.error.error))
     );
   }
-  
 
   updateInfo(data: { name: string; email: string }): Observable<any> {
     return this.http.put(`${this.apiUrl}/profile/update`, data).pipe(
+      tap(user => {
+        this.updateUser(user);
+      }),
       catchError(err => throwError(() => err.error.error))
     );
   }
@@ -83,62 +91,38 @@ export class AuthService {
     return localStorage.getItem('access_token');
   }
 
-  getAuthStatus(): Observable<boolean> {
-    return this.authStatus.asObservable();
+  getUserName(): string {
+    return this.currentUserSubject.value?.name || '';
   }
 
   getUserEmail(): string {
-    const userString = localStorage.getItem('currentUser');
-    if (!userString) return '';
-    try {
-      const user = JSON.parse(userString);
-      return user?.email || '';
-    } catch (error) {
-      return '';
-    }
-  }
-
-  getUserName(): string {
-    const userString = localStorage.getItem('currentUser');
-    if (!userString) return '';
-    try {
-      const user = JSON.parse(userString);
-      return user?.name || '';
-    } catch (error) {
-      return '';
-    }
+    return this.currentUserSubject.value?.email || '';
   }
 
   getUserId(): string {
-    const userString = localStorage.getItem('currentUser');
-    if (!userString) return '';
-    try {
-      const user = JSON.parse(userString);
-      return user?.id || '';
-    } catch (error) {
-      return '';
-    }
+    return this.currentUserSubject.value?.id || '';
   }
 
   getUserPermissions(): string[] {
-    const currentUser = localStorage.getItem('currentUser');
-    if (!currentUser) {
-      console.log('No current user found in localStorage');
-      return [];
-    }
-    const parsedUser = JSON.parse(currentUser);
-    if (parsedUser && parsedUser.role && Array.isArray(parsedUser.role.permissions)) {
-      const permissions = parsedUser.role.permissions.map((permission: { name: string }) => permission.name);
-      return permissions;
-    } else {
-      console.log('No permissions found for the current user');
-      return [];
-    }
+    return this.currentUserSubject.value?.role?.permissions?.map((p: { name: string }) => p.name) || [];
   }
-  
-  clearLocalStorage(){
+
+  private storeUserData(token: string, user: any) {
+    localStorage.setItem('access_token', token);
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    this.authStatus.next(true);
+    this.currentUserSubject.next(user);
+  }
+
+  private updateUser(user: any) {
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    this.currentUserSubject.next(user);
+  }
+
+  clearLocalStorage() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('currentUser');
     this.authStatus.next(false);
-  }  
+    this.currentUserSubject.next({});
+  }
 }

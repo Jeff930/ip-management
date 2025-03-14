@@ -15,6 +15,7 @@ import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { ActivatedRoute } from '@angular/router';
+import { format, toZonedTime } from 'date-fns-tz';
 
 @Component({
   selector: 'app-user-audit-log',
@@ -83,13 +84,13 @@ export class UserAuditLogComponent {
   applyDateFilter(column: string, event: MatDatepickerInputEvent<Date>) {
     const date = event.value;
     if (date) {
-      const filterValue = date.toISOString().split('T')[0];
+      const filterValue = format(date, 'yyyy-MM-dd');
       this.columnFilters[column] = filterValue;
     } else {
       delete this.columnFilters[column];
     }
     this.userAuditLogDataSource.filter = JSON.stringify(this.columnFilters);
-
+  
     if (this.userAuditLogDataSource.paginator) {
       this.userAuditLogDataSource.paginator.firstPage();
     }
@@ -118,6 +119,12 @@ export class UserAuditLogComponent {
 
       if (dataValue === undefined || dataValue === null) {
         return false;
+      }
+
+      if (key === 'created_at') {
+        const localTime = toZonedTime(dataValue, Intl.DateTimeFormat().resolvedOptions().timeZone);
+        const localDate = format(localTime, 'yyyy-MM-dd');
+        return localDate === filterValue; 
       }
 
       if (key === 'changes' && typeof dataValue === 'object') {

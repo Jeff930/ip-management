@@ -27,6 +27,14 @@ module.exports = async function (req, res, next) {
     }
   } catch (error) {
     console.error("Error during token validation:", error);
+    
+    if (error.response && error.response.status === 401) {
+      return res.status(401).json({
+        isTokenValid: false,
+        error: error.response.data.error || "Unauthorized. Invalid token.",
+      });
+    }
+
     res.status(500).json({ error: "Internal server error." });
   }
 };

@@ -113,6 +113,8 @@ class AuthController extends Controller
             'email' => $request->email,
         ]);
 
+        $user->load('role.permissions');
+
         AuditLogService::logAction([
             'actor_id'   => $user->id,
             'session_id' => $user->session_id,

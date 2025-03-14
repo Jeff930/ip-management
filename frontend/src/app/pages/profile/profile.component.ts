@@ -67,6 +67,7 @@ export class ProfileComponent {
         next: (response: any) => {
           this.userData = response;
           this.loadingService.hide();
+          this.snackBar.open('User update successfully.', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
         },
         error: (err) => {
           console.error('Error updating user info:', err);
@@ -89,6 +90,7 @@ export class ProfileComponent {
           console.log('Password updated successfully:', response);
           this.passwordForm.reset();
           this.loadingService.hide();
+          this.snackBar.open('Password updated successfully.', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
         },
         error: (err) => {
           console.error('Error updating password:', err);

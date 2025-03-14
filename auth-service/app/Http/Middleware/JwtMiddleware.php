@@ -15,7 +15,10 @@ class JwtMiddleware
             $user = JWTAuth::parseToken()->authenticate();
             $request->attributes->add(['user' => $user]);
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Token not valid'], 401);
+            return response()->json([
+                'isTokenValid' => false,
+                'error' => 'Token not valid'
+            ], 401);
         }
 
         return $next($request);

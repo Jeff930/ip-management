@@ -104,8 +104,16 @@ class UserController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'User updated successfully',
-            'user'    => $user->fresh()->toArray(),
+            'message' => 'User updated succcessfully',
+            'user'    => [
+                'id'         => $user->id,
+                'name'       => $user->name,
+                'email'      => $user->email,
+                'role_id'    => $user->role_id,
+                'role_name'  => $roleName,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at
+            ]
         ]);
     }
 

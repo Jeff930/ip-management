@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     curl \
     git \
+    netcat-traditional \
     && docker-php-ext-install pdo pdo_mysql zip
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -19,7 +20,7 @@ RUN chown -R www-data:www-data /var/www/html \
 
 RUN composer install
 
-RUN php artisan migrate --force \
-    && php artisan db:seed --force
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-CMD ["php-fpm"]
+ENTRYPOINT ["/entrypoint.sh"]

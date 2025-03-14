@@ -82,7 +82,9 @@ router.put("/:id", authenticateToken, async (req, res) => {
   const updatedByUserId = req.user.id;
   const updatedByUserName = req.user.name;
   const updatedByUserEmail = req.user.email;
-  const hasEditAnyIpPermission = req.user.role.permissions.includes("edit-any-ip");
+  const hasEditAnyIpPermission = req.user.role.permissions.some(
+    (perm) => perm.name === "edit-any-ip"
+  );
 
   try {
     const existingIP = await IP.findById(id);
@@ -96,7 +98,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
 
     let updateData = { label };
 
-    if (hasEditAnyIpPermission || existingIP.addedByUserId.toString() === updatedByUserId) {
+    if (hasEditAnyIpPermission || existingIP.addedByUserId == updatedByUserId) {
       updateData = { ip, comment, label, updatedByUserId, updatedByUserName, updatedByUserEmail };
     }
 
